@@ -68,6 +68,10 @@ async function deleteEventFromCloud(eventId) {
 }
 
 function renderCalendar() {
+  const hostTypeBorder = {
+    '學界': '#2196f3', // 藍色
+    '社會界': '#ff9800' // 橘色
+  };
   const year = currentDate.getFullYear(), month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
   const firstDayOfWeek = firstDay.getDay();
@@ -79,8 +83,19 @@ function renderCalendar() {
     html += `<div class='text-right font-semibold mb-1'>${day}</div><div class='events-container'>`;
     if(events[dateStr]) for(const ev of events[dateStr]) {
       if(!ev||!ev.id) continue;
-      const venueText = (ev.venues||[]).map(v=>v.split('-').pop()).join(',');
-      html += `<div class='event' title='${ev.title}\n${venueText}\n${ev.startTime}-${ev.endTime}' data-event-id='${ev.id}'>${ev.title} (${venueText})</div>`;
+      const venue = (ev.venues||[])[0] || '';
+      const venueColor = venueColors[venue] || '#e0e0e0';
+      const hostType = ev.hostType || '';
+      const borderColor = hostTypeBorder[hostType] || '#bdbdbd';
+      // 活動方塊：背景色=教室，底框線=界別
+      html += `<div class='event' 
+        style='background:${venueColor};border-bottom:4px solid ${borderColor};padding:2px 6px;margin-bottom:2px;cursor:pointer;border-radius:6px;position:relative;' 
+        data-event-id='${ev.id}' 
+        data-organizer='${ev.organizer||''}'
+        title='${ev.title}\n${venue}\n${ev.startTime}-${ev.endTime}\n${ev.organizer?('負責人:'+ev.organizer):''}'>
+        <span style='font-weight:bold;'>${ev.title}</span>
+        <span class='event-organizer-tooltip' style='display:none;position:absolute;left:0;right:0;bottom:-1.8em;background:rgba(0,0,0,0.8);color:#fff;font-size:12px;padding:2px 6px;border-radius:4px;z-index:10;text-align:center;'>${ev.organizer||''}</span>
+      </div>`;
     }
     html += '</div></div>';
     $cal.append(html);
@@ -99,8 +114,13 @@ function renderCalendar() {
     e.stopPropagation();
     const date = $(this).closest('.calendar-day').data('date');
     viewEvent($(this).data('event-id'), date);
+  }).off('mouseenter mouseleave').on('mouseenter',function(){
+    $(this).find('.event-organizer-tooltip').show();
+  }).on('mouseleave',function(){
+    $(this).find('.event-organizer-tooltip').hide();
   });
 }
+
 function openEventModal(dateStr, isEdit=false) {
   currentEventDate = dateStr;
   $('#eventModalTitle').text(isEdit?'編輯活動':'新增活動');
@@ -253,6 +273,32 @@ function closeImportModal() {
   $('#importModal').addClass('hidden');
 }
 
+function editEvent() {
+  if (!currentEventDate || !selectedEventId) {
+    showToast('無法編輯：未選擇活動', 'error');
+    return;
+  }
+  const ev = (events[currentEventDate]||[]).find(e => e && e.id === selectedEventId);
+  if (!ev) {
+    showToast('找不到該活動', 'error');
+    return;
+  }
+  // 帶入資料到表單
+  $('#eventTitle').val(ev.title || '');
+  $("input[name='eventHostType']").prop('checked', false);
+  $("input[name='eventHostType'][value='" + (ev.hostType||'') + "']").prop('checked', true);
+  $('#eventStartTime').val(ev.startTime || '');
+  $('#eventEndTime').val(ev.endTime || '');
+  $('#eventOrganizer').val(ev.organizer || '');
+  $('#eventOrganizerPhone').val(ev.organizerPhone || '');
+  selectedVenues = Array.isArray(ev.venues) ? [...ev.venues] : [];
+  $('#eventDate').val(currentEventDate);
+  renderVenueSelector();
+  $('#eventModalTitle').text('編輯活動');
+  $('#eventModal').removeClass('hidden');
+  $('#viewEventModal').addClass('hidden');
+}
+
 function viewEvent(eventId, dateStr) {
   if (!events[dateStr]) return;
   const ev = events[dateStr].find(e => e && e.id === eventId);
@@ -263,7 +309,7 @@ function viewEvent(eventId, dateStr) {
   $('#viewEventTitle').text(ev.title || '');
   $('#viewEventTime').text(`${ev.startTime || ''} - ${ev.endTime || ''}`);
   const venueText = (ev.venues || []).map(v => v.split('-').pop()).join(', ');
-  $('#viewEventVenues').text(venueText);
+  $('#viewEventVenue').text(venueText); // 修正id
   $('#viewEventHostType').text(ev.hostType || '');
   $('#viewEventOrganizer').text(ev.organizer || '');
   $('#viewEventOrganizerPhone').text(ev.organizerPhone || '');
