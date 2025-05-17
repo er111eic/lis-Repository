@@ -64,6 +64,12 @@ function renderCalendar() {
     html += '</div></div>';
     $cal.append(html);
   }
+  // 滑鼠特效
+  $('.calendar-day').off('mouseenter mouseleave').on('mouseenter',function(){
+    $(this).addClass('calendar-day-hover');
+  }).on('mouseleave',function(){
+    $(this).removeClass('calendar-day-hover');
+  });
   $('.calendar-day').off('click').on('click',function(e){
     if($(e.target).hasClass('event')) return;
     openEventModal($(this).data('date'));
@@ -106,12 +112,105 @@ function checkVenueBooked(dateStr,venue,startTime,endTime) {
   if(!events[dateStr]) return false;
   const newStart=timeToMinutes(startTime), newEnd=timeToMinutes(endTime);
   if(newStart>=newEnd) return false;
-  return events[dateStr].some(ev=>ev.venues&&ev.venues.includes(venue)&&!(selectedEventId&&ev.id===selectedEventId)&&overlap(ev.startTime,ev.endTime,startTime,endTime));
+  // 嚴格審查：同一時段同一場地不可重複
+  return events[dateStr].some(ev=>Array.isArray(ev.venues)&&ev.venues.includes(venue)&&!(selectedEventId&&ev.id===selectedEventId)&&overlap(ev.startTime,ev.endTime,startTime,endTime));
 }
 function overlap(s1,e1,s2,e2){
   const a=timeToMinutes(s1),b=timeToMinutes(e1),c=timeToMinutes(s2),d=timeToMinutes(e2);
   return c<b&&d>a;
 }
 function timeToMinutes(t){if(!t||t.indexOf(':')===-1)return 0;const[a,b]=t.split(':').map(Number);return a*60+b;}
-// ... 其餘原本的 JS 函式 ...
-// 請將剩餘的原本 JS 內容依序搬移到這個檔案
+function saveEvent() {
+  const dateStr = document.getElementById('eventDate').value;
+  const title = document.getElementById('eventTitle').value.trim();
+  const startTime = document.getElementById('eventStartTime').value;
+  const endTime = document.getElementById('eventEndTime').value;
+  const hostType = document.querySelector('input[name="eventHostType"]:checked')?.value || '';
+  const venuesArr = Array.from(new Set(selectedVenues)); // 僅保留唯一場地
+  const organizer = document.getElementById('eventOrganizer').value.trim();
+  const organizerPhone = document.getElementById('eventOrganizerPhone').value.trim();
+  if (!title) { showToast('請輸入活動名稱', 'error'); return; }
+  if (!hostType) { showToast('請選擇主辦單位', 'error'); return; }
+  if (!startTime || !endTime) { showToast('請輸入活動時間', 'error'); return; }
+  if (timeToMinutes(startTime) >= timeToMinutes(endTime)) { showToast('結束時間必須晚於開始時間', 'error'); return; }
+  if (!venuesArr.length) { showToast('請選擇場地', 'error'); return; }
+  if (!organizer) { showToast('請輸入負責人姓名', 'error'); return; }
+  if (!organizerPhone) { showToast('請輸入負責人電話', 'error'); return; }
+  // 嚴格審查：所有選擇場地都不能有重疊
+  for (const v of venuesArr) {
+    if (checkVenueBooked(dateStr, v, startTime, endTime)) {
+      showToast(`${v} 在所選時間已被預訂，請選擇其他場地或時間`, 'error');
+      return;
+    }
+  }
+  if (!events[dateStr]) {
+    events[dateStr] = [];
+  }
+  if (selectedEventId) {
+    const eventIndex = events[dateStr].findIndex(e => e && e.id === selectedEventId);
+    if (eventIndex !== -1) {
+      // 編輯現有活動
+      events[dateStr][eventIndex] = {
+        id: selectedEventId,
+        title,
+        startTime,
+        endTime,
+        venues: venuesArr,
+        hostType,
+        organizer,
+        organizerPhone
+      };
+      showToast('活動已更新', 'success');
+    } else {
+      showToast('編輯失敗：找不到該活動', 'error');
+    }
+  } else {
+    const newEvent = {
+      id: Date.now().toString(),
+      title,
+      startTime,
+      endTime,
+      venues: venuesArr,
+      hostType,
+      organizer,
+      organizerPhone
+    };
+    events[dateStr].push(newEvent);
+    showToast('活動已新增', 'success');
+  }
+  saveEvents();
+  closeEventModal();
+  renderCalendar();
+}
+function deleteEvent() {
+  if (!currentEventDate || !selectedEventId) {
+    showToast('無法刪除：未選擇活動', 'error');
+    return;
+  }
+  const eventIdStr = String(selectedEventId);
+  // 僅警告一次
+  if (!window._deleteConfirm || window._deleteConfirm !== eventIdStr) {
+    window._deleteConfirm = eventIdStr;
+    if (!confirm('確定要刪除此活動嗎？')) return;
+  }
+  window._deleteConfirm = null;
+  if (!events[currentEventDate] || !Array.isArray(events[currentEventDate])) {
+    showToast('找不到該日期的活動', 'error');
+    closeViewEventModal();
+    return;
+  }
+  const eventIndex = events[currentEventDate].findIndex(e => e && String(e.id) === eventIdStr);
+  if (eventIndex !== -1) {
+    events[currentEventDate].splice(eventIndex, 1);
+    if (events[currentEventDate].length === 0) {
+      delete events[currentEventDate];
+    }
+    saveEvents();
+    closeViewEventModal();
+    renderCalendar();
+    showToast('活動已成功刪除', 'success');
+  } else {
+    showToast('找不到要刪除的活動', 'error');
+    closeViewEventModal();
+  }
+}

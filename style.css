@@ -6,6 +6,13 @@ body {
     min-height: 100px;
     transition: all 0.2s;
 }
+.calendar-day-hover {
+    box-shadow: 0 0 0 2px #6366f1, 0 2px 8px rgba(99,102,241,0.08);
+    background: #eef2ff !important;
+    z-index: 2;
+    position: relative;
+    transition: box-shadow 0.2s, background 0.2s;
+}
 @media (max-width: 900px) {
     .container {
         padding: 0.5rem !important;
