@@ -278,7 +278,22 @@ function editEvent() {
     showToast('無法編輯：未選擇活動', 'error');
     return;
   }
-  const ev = (events[currentEventDate]||[]).find(e => e && e.id === selectedEventId);
+  // 取得正確的活動物件
+  let ev = null;
+  // 先嘗試用 currentEventDate
+  if (events[currentEventDate]) {
+    ev = events[currentEventDate].find(e => e && e.id === selectedEventId);
+  }
+  // 若找不到，再全域搜尋一次（避免日期同步問題）
+  if (!ev) {
+    for (const date in events) {
+      ev = events[date].find(e => e && e.id === selectedEventId);
+      if (ev) {
+        currentEventDate = date;
+        break;
+      }
+    }
+  }
   if (!ev) {
     showToast('找不到該活動', 'error');
     return;
