@@ -214,3 +214,19 @@ function deleteEvent() {
     closeViewEventModal();
   }
 }
+function loadEvents() {
+  // 預設從 localStorage 載入，若有 firebase 可改寫
+  const saved = localStorage.getItem('events');
+  if (saved) {
+    try {
+      events = JSON.parse(saved);
+    } catch (e) {
+      events = {};
+    }
+  } else {
+    events = {};
+  }
+}
+function saveEvents() {
+  localStorage.setItem('events', JSON.stringify(events));
+}
