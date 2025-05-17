@@ -270,3 +270,8 @@ function viewEvent(eventId, dateStr) {
   // 顯示 modal
   $('#viewEventModal').removeClass('hidden');
 }
+
+function importData() {
+  // TODO: 實作資料匯入功能
+  showToast('尚未實作匯入功能', 'error');
+}
