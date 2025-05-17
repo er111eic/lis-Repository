@@ -28,42 +28,31 @@ const venues = [
   "杏德-坤伙"
 ];
 
-function loadEvents() {
-  // 預設從 localStorage 載入，若有 firebase 可改寫
-  const saved = localStorage.getItem('events');
-  if (saved) {
-    try {
-      events = JSON.parse(saved);
-    } catch (e) {
-      events = {};
-    }
-  } else {
+// ========== 雲端同步（Firestore） ==========
+async function loadEvents() {
+  try {
+    const snapshot = await db.collection('events').get();
+    events = {};
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!events[data.date]) events[data.date] = [];
+      events[data.date].push({ ...data, id: doc.id });
+    });
+  } catch (e) {
     events = {};
   }
 }
-function saveEvents() {
-  localStorage.setItem('events', JSON.stringify(events));
+async function saveEventToCloud(dateStr, eventObj, isEdit = false) {
+  if (isEdit && eventObj.id) {
+    await db.collection('events').doc(eventObj.id).set({ ...eventObj, date: dateStr });
+  } else {
+    await db.collection('events').add({ ...eventObj, date: dateStr });
+  }
+}
+async function deleteEventFromCloud(eventId) {
+  if (eventId) await db.collection('events').doc(eventId).delete();
 }
 
-$(function() {
-  loadEvents();
-  updateMonthYearDisplay();
-  renderCalendar();
-  $('#prevMonth').click(() => { currentDate.setMonth(currentDate.getMonth()-1); updateMonthYearDisplay(); renderCalendar(); });
-  $('#nextMonth').click(() => { currentDate.setMonth(currentDate.getMonth()+1); updateMonthYearDisplay(); renderCalendar(); });
-  $('#cancelEvent').click(closeEventModal);
-  $('#saveEvent').click(saveEvent);
-  $('#closeViewEvent').click(closeViewEventModal);
-  $('#editEvent').click(editEvent);
-  $('#deleteEvent').click(deleteEvent);
-  $('#eventStartTime,#eventEndTime').change(renderVenueSelector);
-  $('#cancelImport').click(closeImportModal);
-  $('#confirmImport').click(importData);
-});
-function updateMonthYearDisplay() {
-  const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-  $('#currentMonthYear').text(`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`);
-}
 function renderCalendar() {
   const year = currentDate.getFullYear(), month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
@@ -138,7 +127,27 @@ function overlap(s1,e1,s2,e2){
   return c<b&&d>a;
 }
 function timeToMinutes(t){if(!t||t.indexOf(':')===-1)return 0;const[a,b]=t.split(':').map(Number);return a*60+b;}
-function saveEvent() {
+$(function() {
+  loadEvents().then(() => {
+    updateMonthYearDisplay();
+    renderCalendar();
+  });
+  $('#prevMonth').click(() => { currentDate.setMonth(currentDate.getMonth()-1); updateMonthYearDisplay(); renderCalendar(); });
+  $('#nextMonth').click(() => { currentDate.setMonth(currentDate.getMonth()+1); updateMonthYearDisplay(); renderCalendar(); });
+  $('#cancelEvent').click(closeEventModal);
+  $('#saveEvent').click(saveEvent);
+  $('#closeViewEvent').click(closeViewEventModal);
+  $('#editEvent').click(editEvent);
+  $('#deleteEvent').click(deleteEvent);
+  $('#eventStartTime,#eventEndTime').change(renderVenueSelector);
+  $('#cancelImport').click(closeImportModal);
+  $('#confirmImport').click(importData);
+});
+function updateMonthYearDisplay() {
+  const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  $('#currentMonthYear').text(`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`);
+}
+async function saveEvent() {
   const dateStr = document.getElementById('eventDate').value;
   const title = document.getElementById('eventTitle').value.trim();
   const startTime = document.getElementById('eventStartTime').value;
@@ -167,7 +176,6 @@ function saveEvent() {
   if (selectedEventId) {
     const eventIndex = events[dateStr].findIndex(e => e && e.id === selectedEventId);
     if (eventIndex !== -1) {
-      // 編輯現有活動
       events[dateStr][eventIndex] = {
         id: selectedEventId,
         title,
@@ -178,13 +186,13 @@ function saveEvent() {
         organizer,
         organizerPhone
       };
+      await saveEventToCloud(dateStr, events[dateStr][eventIndex], true);
       showToast('活動已更新', 'success');
     } else {
       showToast('編輯失敗：找不到該活動', 'error');
     }
   } else {
     const newEvent = {
-      id: Date.now().toString(),
       title,
       startTime,
       endTime,
@@ -193,12 +201,32 @@ function saveEvent() {
       organizer,
       organizerPhone
     };
+    await saveEventToCloud(dateStr, newEvent, false);
     events[dateStr].push(newEvent);
     showToast('活動已新增', 'success');
   }
-  saveEvents();
+  // 重新同步
+  await loadEvents();
   closeEventModal();
   renderCalendar();
 }
 
-// 其餘功能函式（deleteEvent、viewEvent、editEvent、showToast、closeViewEventModal、closeImportModal、importData 等）
+async function deleteEvent() {
+  if (!currentEventDate || !selectedEventId) {
+    showToast('無法刪除：未選擇活動', 'error');
+    return;
+  }
+  const eventIdStr = String(selectedEventId);
+  if (!window._deleteConfirm || window._deleteConfirm !== eventIdStr) {
+    window._deleteConfirm = eventIdStr;
+    if (!confirm('確定要刪除此活動嗎？')) return;
+  }
+  window._deleteConfirm = null;
+  await deleteEventFromCloud(eventIdStr);
+  await loadEvents();
+  closeViewEventModal();
+  renderCalendar();
+  showToast('活動已成功刪除', 'success');
+}
+
+// 其餘功能函式（viewEvent、editEvent、showToast、closeViewEventModal、closeImportModal、importData 等）
