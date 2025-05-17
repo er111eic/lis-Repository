@@ -200,3 +200,5 @@ function saveEvent() {
   closeEventModal();
   renderCalendar();
 }
+
+// 其餘功能函式（deleteEvent、viewEvent、editEvent、showToast、closeViewEventModal、closeImportModal、importData 等）
