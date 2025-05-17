@@ -28,9 +28,16 @@ const venues = [
   "杏德-坤伙"
 ];
 
-// 由於 closeViewEventModal 需在 jQuery ready 前宣告，移到檔案最前面
+// ========== Modal 關閉函式 ==========
 function closeViewEventModal() {
   $('#viewEventModal').addClass('hidden');
+  selectedEventId = null;
+  currentEventDate = null;
+}
+
+// 由於 closeViewEventModal 需在 jQuery ready 前宣告，移到檔案最前面
+function closeEventModal() {
+  $('#eventModal').addClass('hidden');
   selectedEventId = null;
   currentEventDate = null;
 }
