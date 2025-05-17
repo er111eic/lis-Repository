@@ -254,6 +254,19 @@ function closeImportModal() {
 }
 
 function viewEvent(eventId, dateStr) {
-  // TODO: 補齊檢視活動細節邏輯
-  // 目前僅避免 ReferenceError
+  if (!events[dateStr]) return;
+  const ev = events[dateStr].find(e => e && e.id === eventId);
+  if (!ev) return;
+  selectedEventId = eventId;
+  currentEventDate = dateStr;
+  // 填入活動資訊
+  $('#viewEventTitle').text(ev.title || '');
+  $('#viewEventTime').text(`${ev.startTime || ''} - ${ev.endTime || ''}`);
+  const venueText = (ev.venues || []).map(v => v.split('-').pop()).join(', ');
+  $('#viewEventVenues').text(venueText);
+  $('#viewEventHostType').text(ev.hostType || '');
+  $('#viewEventOrganizer').text(ev.organizer || '');
+  $('#viewEventOrganizerPhone').text(ev.organizerPhone || '');
+  // 顯示 modal
+  $('#viewEventModal').removeClass('hidden');
 }
