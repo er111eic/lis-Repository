@@ -166,4 +166,37 @@ function saveEvent() {
   }
   if (selectedEventId) {
     const eventIndex = events[dateStr].findIndex(e => e && e.id === selectedEventId);
-    if
+    if (eventIndex !== -1) {
+      // 編輯現有活動
+      events[dateStr][eventIndex] = {
+        id: selectedEventId,
+        title,
+        startTime,
+        endTime,
+        venues: venuesArr,
+        hostType,
+        organizer,
+        organizerPhone
+      };
+      showToast('活動已更新', 'success');
+    } else {
+      showToast('編輯失敗：找不到該活動', 'error');
+    }
+  } else {
+    const newEvent = {
+      id: Date.now().toString(),
+      title,
+      startTime,
+      endTime,
+      venues: venuesArr,
+      hostType,
+      organizer,
+      organizerPhone
+    };
+    events[dateStr].push(newEvent);
+    showToast('活動已新增', 'success');
+  }
+  saveEvents();
+  closeEventModal();
+  renderCalendar();
+}
