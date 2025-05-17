@@ -32,6 +32,21 @@ const CalendarPage: React.FC = () => {
   const [eventOrganizer, setEventOrganizer] = useState("");
   const [eventOrganizerPhone, setEventOrganizerPhone] = useState("");
 
+  // 活動資料狀態
+  const [events, setEvents] = useState<Array<{
+    id: string;
+    date: string;
+    title: string;
+    hostType: string;
+    startTime: string;
+    endTime: string;
+    venues: string[];
+    organizer: string;
+    organizerPhone: string;
+  }>>([]);
+  // 表單錯誤狀態
+  const [formError, setFormError] = useState<string>("");
+
   // 表單重置
   const resetForm = () => {
     setEventTitle("");
@@ -65,6 +80,53 @@ const CalendarPage: React.FC = () => {
     setSelectedDate(null);
   };
 
+  // 儲存活動
+  const handleSaveEvent = () => {
+    // 基本驗證
+    if (!eventTitle.trim()) {
+      setFormError("請輸入活動名稱");
+      return;
+    }
+    if (!eventHostType) {
+      setFormError("請選擇主辦單位");
+      return;
+    }
+    if (!eventStartTime || !eventEndTime) {
+      setFormError("請輸入活動時間");
+      return;
+    }
+    if (eventVenues.length === 0) {
+      setFormError("請選擇場地");
+      return;
+    }
+    if (!eventOrganizer.trim()) {
+      setFormError("請輸入負責人");
+      return;
+    }
+    if (!eventOrganizerPhone.trim()) {
+      setFormError("請輸入負責人電話");
+      return;
+    }
+    // 新增活動
+    setEvents(prev => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        date: selectedDate!,
+        title: eventTitle,
+        hostType: eventHostType,
+        startTime: eventStartTime,
+        endTime: eventEndTime,
+        venues: eventVenues,
+        organizer: eventOrganizer,
+        organizerPhone: eventOrganizerPhone,
+      }
+    ]);
+    setFormError("");
+    setShowModal(false);
+    setSelectedDate(null);
+  };
+
   // 日曆格子渲染
   const renderCalendar = () => {
     const year = currentDate.getFullYear();
@@ -78,6 +140,8 @@ const CalendarPage: React.FC = () => {
     }
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      // 找出該日活動
+      const dayEvents = events.filter(ev => ev.date === dateStr);
       days.push(
         <div
           key={day}
@@ -85,6 +149,16 @@ const CalendarPage: React.FC = () => {
           onClick={() => openEventModal(dateStr)}
         >
           <div className="text-right text-xs font-semibold mb-1">{day}</div>
+          {/* 活動顯示 */}
+          <div className="space-y-1">
+            {dayEvents.map(ev => (
+              <div key={ev.id} className="text-xs rounded px-1 py-0.5" style={{background: venueColors[ev.venues[0]]}}>
+                <span className="font-bold">{ev.title}</span>
+                <span className="ml-1">({ev.venues.join(',')})</span>
+                <span className="ml-1 text-gray-600">{ev.startTime}-{ev.endTime}</span>
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
@@ -137,6 +211,8 @@ const CalendarPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h3 className="text-xl font-bold mb-4">新增活動</h3>
+            {/* 錯誤訊息 */}
+            {formError && <div className="text-red-600 mb-2">{formError}</div>}
             <div className="mb-3">
               <label className="block text-gray-700 mb-1">活動名稱</label>
               <input className="w-full p-2 border rounded" value={eventTitle} onChange={e => setEventTitle(e.target.value)} />
@@ -178,7 +254,7 @@ const CalendarPage: React.FC = () => {
             </div>
             <div className="flex justify-end space-x-2 mt-4">
               <button onClick={closeEventModal} className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">取消</button>
-              {/* 之後可加上儲存按鈕與表單驗證 */}
+              <button onClick={handleSaveEvent} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">儲存</button>
             </div>
           </div>
         </div>
