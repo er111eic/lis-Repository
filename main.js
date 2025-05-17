@@ -248,3 +248,12 @@ function showToast(msg, type = 'success') {
   $toast.text(msg).removeClass('success error').addClass(type).addClass('show');
   setTimeout(() => $toast.removeClass('show'), 2000);
 }
+
+function closeImportModal() {
+  $('#importModal').addClass('hidden');
+}
+
+function viewEvent(eventId, dateStr) {
+  // TODO: 補齊檢視活動細節邏輯
+  // 目前僅避免 ReferenceError
+}
