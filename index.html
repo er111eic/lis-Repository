@@ -486,16 +486,18 @@
             const venueSelector = document.getElementById('venueSelector');
             venueSelector.innerHTML = '';
             venues.forEach(venue => {
+                // 檢查該場地在此時段是否已被預訂
                 const isBooked = checkVenueBooked(dateStr, venue, startTime, endTime);
                 const checked = selectedVenues.includes(venue);
                 const venueEl = document.createElement('label');
-                venueEl.className = `p-2 border rounded flex items-center cursor-pointer ${isBooked ? 'venue-booked' : ''}`;
+                venueEl.className = `p-2 border rounded flex items-center cursor-pointer ${isBooked ? 'venue-booked bg-gray-100 text-gray-400' : ''}`;
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'venue-checkbox';
                 checkbox.value = venue;
                 checkbox.disabled = isBooked;
-                checkbox.checked = checked;
+                checkbox.checked = checked && !isBooked;
+                checkbox.tabIndex = isBooked ? -1 : 0;
                 checkbox.addEventListener('change', (e) => {
                     if (e.target.checked) {
                         selectedVenues.push(venue);
