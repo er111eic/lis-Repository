@@ -21,21 +21,29 @@ const venueColors: Record<string, string> = {
 const CalendarPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // 場地顏色說明
-  const renderVenueLegend = () => (
-    <div className="mb-6">
-      <div className="flex flex-wrap mb-2">
-        {VENUES.map((venue) => (
-          <div key={venue} className="w-full md:w-1/3 px-2 mb-2">
-            <div className="flex items-center">
-              <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: venueColors[venue] }}></div>
-              <span>{venue}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  // 日曆格子渲染
+  const renderCalendar = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const firstDayOfWeek = firstDay.getDay();
+    const days: React.ReactNode[] = [];
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-day bg-gray-100 rounded" />);
+    }
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      days.push(
+        <div
+          key={day}
+          className="calendar-day bg-white border rounded p-2 min-h-[90px] cursor-pointer hover:bg-indigo-50 relative"
+        >
+          <div className="text-right text-xs font-semibold mb-1">{day}</div>
+        </div>
+      );
+    }
+    return days;
+  };
 
   // 月份切換
   const handlePrevMonth = () => {
@@ -59,7 +67,19 @@ const CalendarPage: React.FC = () => {
               <button onClick={handleNextMonth} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">下個月</button>
             </div>
           </div>
-          {renderVenueLegend()}
+          {/* 場地顏色說明 */}
+          <div className="mb-6">
+            <div className="flex flex-wrap mb-2">
+              {VENUES.map((venue) => (
+                <div key={venue} className="w-full md:w-1/3 px-2 mb-2">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: venueColors[venue] }}></div>
+                    <span>{venue}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="grid grid-cols-7 gap-1 mb-2 text-center font-semibold bg-gray-100 p-2 rounded">
             <div>週日</div>
             <div>週一</div>
@@ -69,8 +89,8 @@ const CalendarPage: React.FC = () => {
             <div>週五</div>
             <div>週六</div>
           </div>
-          <div className="grid grid-cols-7 gap-1" id="calendar">
-            {/* 日曆格子（下一步搬移） */}
+          <div className="grid grid-cols-7 gap-1">
+            {renderCalendar()}
           </div>
         </div>
       </div>
