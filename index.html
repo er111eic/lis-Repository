@@ -19,6 +19,7 @@
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
     </script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         body {
             font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
@@ -28,8 +29,57 @@
             min-height: 100px;
             transition: all 0.2s;
         }
-        .calendar-day:hover {
-            background-color: #e6f7ff;
+        @media (max-width: 900px) {
+            .container {
+                padding: 0.5rem !important;
+            }
+            .bg-white.rounded-lg.shadow-lg.p-6 {
+                padding: 1rem !important;
+            }
+            .grid-cols-7 {
+                grid-template-columns: repeat(7, minmax(0, 1fr));
+            }
+            .calendar-day {
+                min-height: 70px;
+                font-size: 0.9rem;
+                padding: 0.5rem 0.2rem;
+            }
+            .text-3xl {
+                font-size: 1.5rem !important;
+            }
+            .text-xl {
+                font-size: 1.1rem !important;
+            }
+            .max-w-6xl {
+                max-width: 100vw !important;
+            }
+        }
+        @media (max-width: 600px) {
+            .calendar-day {
+                min-height: 45px;
+                font-size: 0.8rem;
+                padding: 0.2rem 0.1rem;
+            }
+            .text-3xl {
+                font-size: 1.1rem !important;
+            }
+            .text-xl {
+                font-size: 0.95rem !important;
+            }
+            .venue-checkbox {
+                width: 1em;
+                height: 1em;
+            }
+            .host-radio {
+                width: 1em;
+                height: 1em;
+            }
+            .p-6 {
+                padding: 0.5rem !important;
+            }
+            .rounded-lg {
+                border-radius: 0.5rem !important;
+            }
         }
         .event {
             border-radius: 4px;
@@ -273,6 +323,100 @@
     <div id="toast" class="toast"></div>
 
     <script>
+    // jQuery 版本簡化（覆蓋原本函式，僅保留一份全域變數）
+    const venueColors = {
+        "晑德-佛堂": "#ffcdd2", "晑德-廚房": "#c8e6c9", "晑德-多功能教室": "#bbdefb",
+        "晑德-會談室": "#d1c4e9", "杏德-佛堂": "#ffe0b2", "杏德-坤伙": "#b2dfdb"
+    };
+    let selectedVenues = [];
+    
+    $(function() {
+        // 初始化
+        loadEvents();
+        updateMonthYearDisplay();
+        renderCalendar();
+        $('#prevMonth').click(() => { currentDate.setMonth(currentDate.getMonth()-1); updateMonthYearDisplay(); renderCalendar(); });
+        $('#nextMonth').click(() => { currentDate.setMonth(currentDate.getMonth()+1); updateMonthYearDisplay(); renderCalendar(); });
+        $('#cancelEvent').click(closeEventModal);
+        $('#saveEvent').click(saveEvent);
+        $('#closeViewEvent').click(closeViewEventModal);
+        $('#editEvent').click(editEvent);
+        $('#deleteEvent').click(deleteEvent);
+        $('#eventStartTime,#eventEndTime').change(renderVenueSelector);
+        $('#cancelImport').click(closeImportModal);
+        $('#confirmImport').click(importData);
+    });
+    function updateMonthYearDisplay() {
+        const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+        $('#currentMonthYear').text(`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`);
+    }
+    function renderCalendar() {
+        const year = currentDate.getFullYear(), month = currentDate.getMonth();
+        const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
+        const firstDayOfWeek = firstDay.getDay();
+        const $cal = $('#calendar').empty();
+        for(let i=0;i<firstDayOfWeek;i++) $cal.append('<div class="calendar-day bg-gray-100 p-2 rounded"></div>');
+        for(let day=1;day<=lastDay.getDate();day++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            let html = `<div class='calendar-day bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
+            html += `<div class='text-right font-semibold mb-1'>${day}</div><div class='events-container'>`;
+            if(events[dateStr]) for(const ev of events[dateStr]) {
+                if(!ev||!ev.id) continue;
+                const venueText = (ev.venues||[]).map(v=>v.split('-').pop()).join(',');
+                html += `<div class='event' title='${ev.title}\n${venueText}\n${ev.startTime}-${ev.endTime}' data-event-id='${ev.id}'>${ev.title} (${venueText})</div>`;
+            }
+            html += '</div></div>';
+            $cal.append(html);
+        }
+        $('.calendar-day').off('click').on('click',function(e){
+            if($(e.target).hasClass('event')) return;
+            openEventModal($(this).data('date'));
+        });
+        $('.event').off('click').on('click',function(e){
+            e.stopPropagation();
+            const date = $(this).closest('.calendar-day').data('date');
+            viewEvent($(this).data('event-id'), date);
+        });
+    }
+    function openEventModal(dateStr, isEdit=false) {
+        currentEventDate = dateStr;
+        $('#eventModalTitle').text(isEdit?'編輯活動':'新增活動');
+        $('#eventDate').val(dateStr);
+        if(!isEdit) { $('#eventTitle').val(''); $("input[name='eventHostType']").prop('checked',false); $('#eventStartTime').val('09:00'); $('#eventEndTime').val('10:00'); $('#eventOrganizer').val(''); $('#eventOrganizerPhone').val(''); selectedVenues=[]; }
+        renderVenueSelector();
+        $('#eventModal').removeClass('hidden');
+    }
+    function closeEventModal() { $('#eventModal').addClass('hidden'); selectedEventId=null; currentEventDate=null; }
+    function renderVenueSelector() {
+        const dateStr = $('#eventDate').val(), startTime=$('#eventStartTime').val(), endTime=$('#eventEndTime').val();
+        const $venueSel = $('#venueSelector').empty();
+        venues.forEach(venue=>{
+            const isBooked = checkVenueBooked(dateStr,venue,startTime,endTime);
+            const checked = selectedVenues.includes(venue);
+            let html = `<label class='p-2 border rounded flex items-center cursor-pointer ${isBooked?'venue-booked bg-gray-100 text-gray-400':''}'>`;
+            html += `<input type='checkbox' class='venue-checkbox' value='${venue}' ${checked&&!isBooked?'checked':''} ${isBooked?'disabled':''}/>`;
+            html += `<div class='w-4 h-4 rounded mr-2' style='background:${venueColors[venue]}'></div><span class='flex-1'>${venue}</span>`;
+            if(isBooked) html += `<span class='text-xs text-red-500 ml-1'>已預訂</span>`;
+            html += '</label>';
+            $venueSel.append(html);
+        });
+        $('.venue-checkbox').off('change').on('change',function(){
+            const v=$(this).val();
+            if(this.checked) selectedVenues.push(v); else selectedVenues=selectedVenues.filter(x=>x!==v);
+            renderVenueSelector();
+        });
+    }
+    function checkVenueBooked(dateStr,venue,startTime,endTime) {
+        if(!events[dateStr]) return false;
+        const newStart=timeToMinutes(startTime), newEnd=timeToMinutes(endTime);
+        if(newStart>=newEnd) return false;
+        return events[dateStr].some(ev=>ev.venues&&ev.venues.includes(venue)&&!(selectedEventId&&ev.id===selectedEventId)&&overlap(ev.startTime,ev.endTime,startTime,endTime));
+    }
+    function overlap(s1,e1,s2,e2){
+        const a=timeToMinutes(s1),b=timeToMinutes(e1),c=timeToMinutes(s2),d=timeToMinutes(e2);
+        return c<b&&d>a;
+    }
+    function timeToMinutes(t){if(!t||t.indexOf(':')===-1)return 0;const[a,b]=t.split(':').map(Number);return a*60+b;}
         // 全局變數
         let currentDate = new Date();
         let events = {};
@@ -570,14 +714,6 @@
             return colorMap[venue] || "#e0e0e0";
         }
         
-        // 關閉新增活動表單
-        function closeEventModal() {
-            document.getElementById('eventModal').classList.add('hidden');
-            selectedEventId = null;
-            selectedVenue = null;
-            currentEventDate = null;
-        }
-        
         // 儲存活動
         function saveEvent() {
             const dateStr = document.getElementById('eventDate').value;
@@ -733,13 +869,6 @@
             // 關閉表單並重新渲染日曆
             closeEventModal();
             renderCalendar();
-        }
-        
-        // 將時間轉換為分鐘數
-        function timeToMinutes(timeStr) {
-            if (!timeStr || timeStr.indexOf(':') === -1) return 0;
-            const [hours, minutes] = timeStr.split(':').map(Number);
-            return hours * 60 + minutes;
         }
         
         // 查看活動詳情
