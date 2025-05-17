@@ -82,6 +82,16 @@
         .toast.show {
             opacity: 1;
         }
+        
+        .venue-checkbox {
+            accent-color: #6366f1;
+            width: 1.1em;
+            height: 1.1em;
+            margin-right: 0.5em;
+        }
+        .host-radio {
+            accent-color: #6366f1;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +178,17 @@
                 <input type="text" id="eventTitle" class="w-full p-2 border rounded" placeholder="請輸入活動名稱">
             </div>
             <div class="mb-4">
+                <label class="block text-gray-700 mb-2">主辦單位</label>
+                <div class="flex space-x-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="eventHostType" value="學界" class="host-radio mr-2">學界
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="eventHostType" value="社會界" class="host-radio mr-2">社會界
+                    </label>
+                </div>
+            </div>
+            <div class="mb-4">
                 <label class="block text-gray-700 mb-2">時間</label>
                 <div class="flex space-x-2">
                     <input type="time" id="eventStartTime" class="w-1/2 p-2 border rounded">
@@ -176,14 +197,15 @@
                 </div>
             </div>
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2">場地</label>
+                <label class="block text-gray-700 mb-2">場地（可複選）</label>
                 <div id="venueSelector" class="grid grid-cols-2 gap-2">
                     <!-- 場地選項將由 JavaScript 動態生成 -->
                 </div>
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 mb-2">負責人</label>
-                <input type="text" id="eventOrganizer" class="w-full p-2 border rounded" placeholder="請輸入負責人姓名">
+                <input type="text" id="eventOrganizer" class="w-full p-2 border rounded mb-2" placeholder="請輸入負責人姓名">
+                <input type="tel" id="eventOrganizerPhone" class="w-full p-2 border rounded" placeholder="請輸入負責人電話">
             </div>
             <div class="flex justify-end space-x-2">
                 <button id="cancelEvent" class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">取消</button>
@@ -201,6 +223,10 @@
                 <p id="viewEventTitle" class="p-2 bg-gray-50 rounded"></p>
             </div>
             <div class="mb-4">
+                <label class="block text-gray-700 font-semibold">主辦單位</label>
+                <p id="viewEventHostType" class="p-2 bg-gray-50 rounded"></p>
+            </div>
+            <div class="mb-4">
                 <label class="block text-gray-700 font-semibold">日期</label>
                 <p id="viewEventDate" class="p-2 bg-gray-50 rounded"></p>
             </div>
@@ -215,6 +241,10 @@
             <div class="mb-4">
                 <label class="block text-gray-700 font-semibold">負責人</label>
                 <p id="viewEventOrganizer" class="p-2 bg-gray-50 rounded"></p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold">電話</label>
+                <p id="viewEventOrganizerPhone" class="p-2 bg-gray-50 rounded"></p>
             </div>
             <div class="flex flex-col space-y-2">
                 <button id="editEvent" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">編輯</button>
@@ -387,10 +417,10 @@
                         if (!event || !event.id) return; // 跳過無效的事件
                         
                         const eventEl = document.createElement('div');
-                        eventEl.className = `event venue-${event.venue}`;
-                        // 顯示活動名稱和教室
-                        eventEl.textContent = `${event.title} (${getVenueShortName(event.venue)})`;
-                        eventEl.title = `${event.title}\n${event.venue}\n${event.startTime}-${event.endTime}`;
+                        let venueText = Array.isArray(event.venues) ? event.venues.map(getVenueShortName).join(',') : getVenueShortName(event.venue);
+                        eventEl.className = `event`;
+                        eventEl.textContent = `${event.title} (${venueText})`;
+                        eventEl.title = `${event.title}\n${venueText}\n${event.startTime}-${event.endTime}`;
                         eventEl.dataset.eventId = event.id;
                         eventEl.addEventListener('click', (e) => {
                             e.stopPropagation();
@@ -430,13 +460,14 @@
             
             if (!isEdit) {
                 document.getElementById('eventTitle').value = '';
+                document.querySelectorAll('input[name="eventHostType"]').forEach(r => r.checked = false);
                 document.getElementById('eventStartTime').value = '09:00';
                 document.getElementById('eventEndTime').value = '10:00';
                 document.getElementById('eventOrganizer').value = '';
-                selectedVenue = null;
+                document.getElementById('eventOrganizerPhone').value = '';
+                selectedVenues = [];
             }
             
-            // 渲染場地選擇器
             renderVenueSelector();
             
             document.getElementById('eventModal').classList.remove('hidden');
@@ -452,29 +483,36 @@
             const dateStr = document.getElementById('eventDate').value;
             const startTime = document.getElementById('eventStartTime').value;
             const endTime = document.getElementById('eventEndTime').value;
-            
             const venueSelector = document.getElementById('venueSelector');
             venueSelector.innerHTML = '';
-            
             venues.forEach(venue => {
                 const isBooked = checkVenueBooked(dateStr, venue, startTime, endTime);
-                
-                const venueEl = document.createElement('div');
-                venueEl.className = `p-2 border rounded cursor-pointer flex items-center ${isBooked ? 'venue-booked' : ''} ${selectedVenue === venue ? 'venue-selected' : ''}`;
-                
-                // 添加場地顏色標記
+                const checked = selectedVenues.includes(venue);
+                const venueEl = document.createElement('label');
+                venueEl.className = `p-2 border rounded flex items-center cursor-pointer ${isBooked ? 'venue-booked' : ''}`;
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'venue-checkbox';
+                checkbox.value = venue;
+                checkbox.disabled = isBooked;
+                checkbox.checked = checked;
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedVenues.push(venue);
+                    } else {
+                        selectedVenues = selectedVenues.filter(v => v !== venue);
+                    }
+                    renderVenueSelector();
+                });
+                venueEl.appendChild(checkbox);
                 const colorMark = document.createElement('div');
                 colorMark.className = `w-4 h-4 rounded mr-2`;
                 colorMark.style.backgroundColor = getVenueColor(venue);
                 venueEl.appendChild(colorMark);
-                
-                // 添加場地名稱
                 const venueName = document.createElement('span');
                 venueName.textContent = venue;
                 venueName.className = 'flex-1';
                 venueEl.appendChild(venueName);
-                
-                // 如果場地已被預訂，添加已預訂標記
                 if (isBooked) {
                     const bookedMark = document.createElement('span');
                     bookedMark.textContent = '已預訂';
@@ -482,16 +520,6 @@
                     venueEl.appendChild(bookedMark);
                     venueEl.title = '此場地在所選時間已被預訂';
                 }
-                
-                // 添加點擊事件
-                if (!isBooked) {
-                    venueEl.addEventListener('click', () => {
-                        // 切換選中狀態
-                        selectedVenue = (selectedVenue === venue) ? null : venue;
-                        renderVenueSelector();
-                    });
-                }
-                
                 venueSelector.appendChild(venueEl);
             });
         }
@@ -554,40 +582,24 @@
             const title = document.getElementById('eventTitle').value.trim();
             const startTime = document.getElementById('eventStartTime').value;
             const endTime = document.getElementById('eventEndTime').value;
-            const venue = selectedVenue;
+            const hostType = document.querySelector('input[name="eventHostType"]:checked')?.value || '';
+            const venuesArr = selectedVenues.slice();
             const organizer = document.getElementById('eventOrganizer').value.trim();
-            
-            if (!title) {
-                showToast('請輸入活動名稱', 'error');
-                return;
+            const organizerPhone = document.getElementById('eventOrganizerPhone').value.trim();
+            if (!title) { showToast('請輸入活動名稱', 'error'); return; }
+            if (!hostType) { showToast('請選擇主辦單位', 'error'); return; }
+            if (!startTime || !endTime) { showToast('請輸入活動時間', 'error'); return; }
+            if (timeToMinutes(startTime) >= timeToMinutes(endTime)) { showToast('結束時間必須晚於開始時間', 'error'); return; }
+            if (!venuesArr.length) { showToast('請選擇場地', 'error'); return; }
+            if (!organizer) { showToast('請輸入負責人姓名', 'error'); return; }
+            if (!organizerPhone) { showToast('請輸入負責人電話', 'error'); return; }
+            // 檢查場地是否已被預訂
+            for (const v of venuesArr) {
+                if (checkVenueBooked(dateStr, v, startTime, endTime)) {
+                    showToast(`${v} 在所選時間已被預訂，請選擇其他場地或時間`, 'error');
+                    return;
+                }
             }
-            
-            if (!startTime || !endTime) {
-                showToast('請輸入活動時間', 'error');
-                return;
-            }
-            
-            if (timeToMinutes(startTime) >= timeToMinutes(endTime)) {
-                showToast('結束時間必須晚於開始時間', 'error');
-                return;
-            }
-            
-            if (!venue) {
-                showToast('請選擇場地', 'error');
-                return;
-            }
-            
-            if (!organizer) {
-                showToast('請輸入負責人姓名', 'error');
-                return;
-            }
-            
-            // 檢查場地是否已被預訂（排除當前編輯的事件）
-            if (checkVenueBooked(dateStr, venue, startTime, endTime)) {
-                showToast(`${venue} 在所選時間已被預訂，請選擇其他場地或時間`, 'error');
-                return;
-            }
-            
             // 確保日期對應的事件數組存在
             if (!events[dateStr]) {
                 events[dateStr] = [];
@@ -621,8 +633,10 @@
                                 title,
                                 startTime,
                                 endTime,
-                                venue,
-                                organizer
+                                venues: venuesArr,
+                                hostType,
+                                organizer,
+                                organizerPhone
                             });
                         } else {
                             // 日期沒變，直接更新
@@ -631,8 +645,10 @@
                                 title,
                                 startTime,
                                 endTime,
-                                venue,
-                                organizer
+                                venues: venuesArr,
+                                hostType,
+                                organizer,
+                                organizerPhone
                             };
                         }
                         
@@ -665,8 +681,10 @@
                                 title,
                                 startTime,
                                 endTime,
-                                venue,
-                                organizer
+                                venues: venuesArr,
+                                hostType,
+                                organizer,
+                                organizerPhone
                             });
                             
                             found = true;
@@ -682,8 +700,10 @@
                         title,
                         startTime,
                         endTime,
-                        venue,
-                        organizer
+                        venues: venuesArr,
+                        hostType,
+                        organizer,
+                        organizerPhone
                     };
                     events[dateStr].push(newEvent);
                 }
@@ -696,8 +716,10 @@
                     title,
                     startTime,
                     endTime,
-                    venue,
-                    organizer
+                    venues: venuesArr,
+                    hostType,
+                    organizer,
+                    organizerPhone
                 };
                 events[dateStr].push(newEvent);
                 showToast('活動已新增', 'success');
@@ -737,10 +759,12 @@
             const event = events[dateStr].find(e => e && e.id === eventId);
             if (event) {
                 document.getElementById('viewEventTitle').textContent = event.title || '';
+                document.getElementById('viewEventHostType').textContent = event.hostType || '';
                 document.getElementById('viewEventDate').textContent = formatDate(dateStr);
                 document.getElementById('viewEventTime').textContent = `${event.startTime || ''} - ${event.endTime || ''}`;
-                document.getElementById('viewEventVenue').textContent = event.venue || '';
+                document.getElementById('viewEventVenue').textContent = Array.isArray(event.venues) ? event.venues.join(', ') : (event.venue || '');
                 document.getElementById('viewEventOrganizer').textContent = event.organizer || '';
+                document.getElementById('viewEventOrganizerPhone').textContent = event.organizerPhone || '';
                 
                 document.getElementById('viewEventModal').classList.remove('hidden');
             } else {
@@ -773,6 +797,7 @@
                 document.getElementById('eventStartTime').value = event.startTime || '';
                 document.getElementById('eventEndTime').value = event.endTime || '';
                 document.getElementById('eventOrganizer').value = event.organizer || '';
+                document.getElementById('eventOrganizerPhone').value = event.organizerPhone || '';
                 
                 // 設置選中的場地
                 selectedVenue = event.venue;
