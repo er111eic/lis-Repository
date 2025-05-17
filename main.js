@@ -28,6 +28,13 @@ const venues = [
   "杏德-坤伙"
 ];
 
+// 由於 closeViewEventModal 需在 jQuery ready 前宣告，移到檔案最前面
+function closeViewEventModal() {
+  $('#viewEventModal').addClass('hidden');
+  selectedEventId = null;
+  currentEventDate = null;
+}
+
 // ========== 雲端同步（Firestore） ==========
 async function loadEvents() {
   try {
@@ -234,10 +241,3 @@ function showToast(msg, type = 'success') {
   $toast.text(msg).removeClass('success error').addClass(type).addClass('show');
   setTimeout(() => $toast.removeClass('show'), 2000);
 }
-function closeViewEventModal() {
-  $('#viewEventModal').addClass('hidden');
-  selectedEventId = null;
-  currentEventDate = null;
-}
-
-// 其餘功能函式（viewEvent、editEvent、closeViewEventModal、closeImportModal、importData 等）
