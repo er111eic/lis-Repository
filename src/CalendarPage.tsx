@@ -20,6 +20,18 @@ const venueColors: Record<string, string> = {
 
 const CalendarPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  // 點擊日期開啟活動 Modal
+  const openEventModal = (dateStr: string) => {
+    setSelectedDate(dateStr);
+    setShowModal(true);
+  };
+  const closeEventModal = () => {
+    setShowModal(false);
+    setSelectedDate(null);
+  };
 
   // 日曆格子渲染
   const renderCalendar = () => {
@@ -33,11 +45,12 @@ const CalendarPage: React.FC = () => {
       days.push(<div key={`empty-${i}`} className="calendar-day bg-gray-100 rounded" />);
     }
     for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       days.push(
         <div
           key={day}
           className="calendar-day bg-white border rounded p-2 min-h-[100px] cursor-pointer hover:bg-indigo-50 relative"
-          // 之後 onClick={() => openEventModal(dateStr)}
+          onClick={() => openEventModal(dateStr)}
         >
           <div className="text-right text-xs font-semibold mb-1">{day}</div>
         </div>
@@ -87,8 +100,21 @@ const CalendarPage: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* 活動 Modal（初步，僅顯示選擇的日期） */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h3 className="text-xl font-bold mb-4">新增活動</h3>
+            <div className="mb-4">選擇日期：{selectedDate}</div>
+            <div className="flex justify-end space-x-2 mt-4">
+              <button onClick={closeEventModal} className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">取消</button>
+              {/* 之後可加上儲存按鈕與表單欄位 */}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  </div>
 };
 
 export default CalendarPage;
