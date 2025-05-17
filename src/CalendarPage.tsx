@@ -23,6 +23,38 @@ const CalendarPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
+  // 活動表單欄位狀態
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventHostType, setEventHostType] = useState("");
+  const [eventStartTime, setEventStartTime] = useState("09:00");
+  const [eventEndTime, setEventEndTime] = useState("10:00");
+  const [eventVenues, setEventVenues] = useState<string[]>([]);
+  const [eventOrganizer, setEventOrganizer] = useState("");
+  const [eventOrganizerPhone, setEventOrganizerPhone] = useState("");
+
+  // 表單重置
+  const resetForm = () => {
+    setEventTitle("");
+    setEventHostType("");
+    setEventStartTime("09:00");
+    setEventEndTime("10:00");
+    setEventVenues([]);
+    setEventOrganizer("");
+    setEventOrganizerPhone("");
+  };
+
+  // Modal 開啟時重置表單
+  React.useEffect(() => {
+    if (showModal) resetForm();
+  }, [showModal]);
+
+  // 場地多選切換
+  const toggleVenue = (venue: string) => {
+    setEventVenues((prev) =>
+      prev.includes(venue) ? prev.filter((v) => v !== venue) : [...prev, venue]
+    );
+  };
+
   // 點擊日期開啟活動 Modal
   const openEventModal = (dateStr: string) => {
     setSelectedDate(dateStr);
@@ -105,10 +137,48 @@ const CalendarPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h3 className="text-xl font-bold mb-4">新增活動</h3>
-            <div className="mb-4">選擇日期：{selectedDate}</div>
+            <div className="mb-3">
+              <label className="block text-gray-700 mb-1">活動名稱</label>
+              <input className="w-full p-2 border rounded" value={eventTitle} onChange={e => setEventTitle(e.target.value)} />
+            </div>
+            <div className="mb-3">
+              <label className="block text-gray-700 mb-1">主辦單位</label>
+              <div className="flex space-x-4">
+                <label className="flex items-center cursor-pointer">
+                  <input type="radio" name="hostType" value="學界" checked={eventHostType === "學界"} onChange={() => setEventHostType("學界")} className="mr-2" />學界
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input type="radio" name="hostType" value="社會界" checked={eventHostType === "社會界"} onChange={() => setEventHostType("社會界")} className="mr-2" />社會界
+                </label>
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="block text-gray-700 mb-1">時間</label>
+              <div className="flex space-x-2">
+                <input type="time" className="w-1/2 p-2 border rounded" value={eventStartTime} onChange={e => setEventStartTime(e.target.value)} />
+                <span className="flex items-center">至</span>
+                <input type="time" className="w-1/2 p-2 border rounded" value={eventEndTime} onChange={e => setEventEndTime(e.target.value)} />
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="block text-gray-700 mb-1">場地（可複選）</label>
+              <div className="grid grid-cols-2 gap-2">
+                {VENUES.map(venue => (
+                  <label key={venue} className="flex items-center cursor-pointer p-2 border rounded">
+                    <input type="checkbox" className="mr-2" checked={eventVenues.includes(venue)} onChange={() => toggleVenue(venue)} />
+                    {venue}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="block text-gray-700 mb-1">負責人</label>
+              <input className="w-full p-2 border rounded mb-2" value={eventOrganizer} onChange={e => setEventOrganizer(e.target.value)} placeholder="請輸入負責人姓名" />
+              <input className="w-full p-2 border rounded" value={eventOrganizerPhone} onChange={e => setEventOrganizerPhone(e.target.value)} placeholder="請輸入負責人電話" />
+            </div>
             <div className="flex justify-end space-x-2 mt-4">
               <button onClick={closeEventModal} className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">取消</button>
-              {/* 之後可加上儲存按鈕與表單欄位 */}
+              {/* 之後可加上儲存按鈕與表單驗證 */}
             </div>
           </div>
         </div>
