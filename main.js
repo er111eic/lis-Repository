@@ -8,6 +8,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// ========== 事件資料載入/儲存 ==========
 const venueColors = {
   "晑德-佛堂": "#ffcdd2", "晑德-廚房": "#c8e6c9", "晑德-多功能教室": "#bbdefb",
   "晑德-會談室": "#d1c4e9", "杏德-佛堂": "#ffe0b2", "杏德-坤伙": "#b2dfdb"
@@ -165,69 +166,4 @@ function saveEvent() {
   }
   if (selectedEventId) {
     const eventIndex = events[dateStr].findIndex(e => e && e.id === selectedEventId);
-    if (eventIndex !== -1) {
-      // 編輯現有活動
-      events[dateStr][eventIndex] = {
-        id: selectedEventId,
-        title,
-        startTime,
-        endTime,
-        venues: venuesArr,
-        hostType,
-        organizer,
-        organizerPhone
-      };
-      showToast('活動已更新', 'success');
-    } else {
-      showToast('編輯失敗：找不到該活動', 'error');
-    }
-  } else {
-    const newEvent = {
-      id: Date.now().toString(),
-      title,
-      startTime,
-      endTime,
-      venues: venuesArr,
-      hostType,
-      organizer,
-      organizerPhone
-    };
-    events[dateStr].push(newEvent);
-    showToast('活動已新增', 'success');
-  }
-  saveEvents();
-  closeEventModal();
-  renderCalendar();
-}
-function deleteEvent() {
-  if (!currentEventDate || !selectedEventId) {
-    showToast('無法刪除：未選擇活動', 'error');
-    return;
-  }
-  const eventIdStr = String(selectedEventId);
-  // 僅警告一次
-  if (!window._deleteConfirm || window._deleteConfirm !== eventIdStr) {
-    window._deleteConfirm = eventIdStr;
-    if (!confirm('確定要刪除此活動嗎？')) return;
-  }
-  window._deleteConfirm = null;
-  if (!events[currentEventDate] || !Array.isArray(events[currentEventDate])) {
-    showToast('找不到該日期的活動', 'error');
-    closeViewEventModal();
-    return;
-  }
-  const eventIndex = events[currentEventDate].findIndex(e => e && String(e.id) === eventIdStr);
-  if (eventIndex !== -1) {
-    events[currentEventDate].splice(eventIndex, 1);
-    if (events[currentEventDate].length === 0) {
-      delete events[currentEventDate];
-    }
-    saveEvents();
-    closeViewEventModal();
-    renderCalendar();
-    showToast('活動已成功刪除', 'success');
-  } else {
-    showToast('找不到要刪除的活動', 'error');
-    closeViewEventModal();
-  }
-}
+    if
