@@ -229,4 +229,15 @@ async function deleteEvent() {
   showToast('活動已成功刪除', 'success');
 }
 
-// 其餘功能函式（viewEvent、editEvent、showToast、closeViewEventModal、closeImportModal、importData 等）
+function showToast(msg, type = 'success') {
+  const $toast = $('#toast');
+  $toast.text(msg).removeClass('success error').addClass(type).addClass('show');
+  setTimeout(() => $toast.removeClass('show'), 2000);
+}
+function closeViewEventModal() {
+  $('#viewEventModal').addClass('hidden');
+  selectedEventId = null;
+  currentEventDate = null;
+}
+
+// 其餘功能函式（viewEvent、editEvent、closeViewEventModal、closeImportModal、importData 等）
