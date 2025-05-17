@@ -64,6 +64,24 @@ body {
     .rounded-lg {
         border-radius: 0.5rem !important;
     }
+    #eventModal .max-w-md {
+        max-width: 95vw !important;
+        width: 95vw !important;
+        min-width: 0 !important;
+    }
+    #eventModal .p-6 {
+        padding: 0.5rem !important;
+    }
+    #eventModal input, #eventModal textarea {
+        font-size: 1rem !important;
+    }
+    #eventModal .flex.justify-end {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    #eventModal button {
+        width: 100%;
+    }
 }
 .event {
     border-radius: 4px;
