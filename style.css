@@ -246,12 +246,10 @@ button, .btn-primary, .btn-secondary {
 .accordion-header {
   background: #f3f4f6;
   border-radius: 0.375rem 0.375rem 0 0;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.accordion-header[aria-expanded="true"] {
-  background: #6366f1;
-  color: #fff;
+  cursor: default;
+  font-size: 1.1rem;
+  color: #374151;
+  border: none;
 }
 .accordion-content {
   background: #fff;
@@ -260,5 +258,11 @@ button, .btn-primary, .btn-secondary {
   border-top: none;
 }
 .accordion-step + .accordion-step {
+  margin-top: 1em;
+}
+#venueSelector {
   margin-top: 0.5em;
+}
+#saveEvent, #cancelEvent {
+  min-width: 90px;
 }

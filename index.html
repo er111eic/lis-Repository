@@ -116,57 +116,64 @@
             <h3 id="eventModalTitle" class="text-xl font-bold mb-4 modal-title">新增活動</h3>
             <!-- Accordion Step 1：基本資訊 -->
             <div class="accordion-step" id="accordionStep1">
-                <button type="button" class="accordion-header w-full text-left py-3 px-2 font-bold text-lg border-b focus:outline-none" aria-expanded="true">1. 基本資訊</button>
+                <button type="button" class="accordion-header w-full text-left py-3 px-2 font-bold text-lg border-b focus:outline-none" aria-expanded="true">Step 1：基本資訊 ▼</button>
                 <div class="accordion-content p-2">
-                    <label for="eventTitle" class="block text-gray-700 mb-2">活動名稱<span class="text-red-500">*</span></label>
-                    <input type="text" id="eventTitle" class="w-full p-2 border rounded" placeholder="請輸入活動名稱" required>
-                    <div class="text-xs text-red-500 mt-1" id="eventTitleError"></div>
-                    <label class="block text-gray-700 mb-2 mt-4">主辦單位<span class="text-red-500">*</span></label>
-                    <div class="flex space-x-4">
-                        <label class="flex items-center cursor-pointer" for="hostTypeSchool">
-                            <input type="radio" name="eventHostType" id="hostTypeSchool" value="學界" class="host-radio mr-2" required>學界
-                        </label>
-                        <label class="flex items-center cursor-pointer" for="hostTypeSociety">
-                            <input type="radio" name="eventHostType" id="hostTypeSociety" value="社會界" class="host-radio mr-2" required>社會界
-                        </label>
+                    <div class="mb-2">
+                        <label for="eventDate" class="block text-gray-700 mb-1">日期</label>
+                        <input type="text" id="eventDate" class="w-full p-2 border rounded" readonly required>
+                        <div class="text-xs text-red-500 mt-1" id="eventDateError"></div>
                     </div>
-                    <div class="text-xs text-red-500 mt-1" id="eventHostTypeError"></div>
+                    <div class="mb-2">
+                        <label for="eventTitle" class="block text-gray-700 mb-1">活動名稱<span class="text-red-500">*</span></label>
+                        <input type="text" id="eventTitle" class="w-full p-2 border rounded" placeholder="請輸入活動名稱" required>
+                        <div class="text-xs text-red-500 mt-1" id="eventTitleError"></div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="block text-gray-700 mb-1">主辦單位<span class="text-red-500">*</span></label>
+                        <label class="inline-flex items-center mr-4"><input type="radio" name="eventHostType" value="學界" class="host-radio mr-2" required>學界</label>
+                        <label class="inline-flex items-center"><input type="radio" name="eventHostType" value="社會界" class="host-radio mr-2" required>社會界</label>
+                        <div class="text-xs text-red-500 mt-1" id="eventHostTypeError"></div>
+                    </div>
+                    <div class="mb-2 flex items-center">
+                        <label for="eventStartTime" class="block text-gray-700 mr-2">時間</label>
+                        <input type="time" id="eventStartTime" class="p-2 border rounded w-28" required>
+                        <span class="mx-2">~</span>
+                        <input type="time" id="eventEndTime" class="p-2 border rounded w-28" required>
+                    </div>
+                    <div class="flex">
+                        <div class="text-xs text-red-500 mt-1 flex-1" id="eventStartTimeError"></div>
+                        <div class="text-xs text-red-500 mt-1 flex-1" id="eventEndTimeError"></div>
+                    </div>
                 </div>
             </div>
-            <!-- Accordion Step 2：時間與場地 -->
+            <!-- Accordion Step 2：地點選擇 -->
             <div class="accordion-step" id="accordionStep2">
-                <button type="button" class="accordion-header w-full text-left py-3 px-2 font-bold text-lg border-b focus:outline-none" aria-expanded="false">2. 時間與場地</button>
-                <div class="accordion-content p-2 hidden">
-                    <label for="eventDate" class="block text-gray-700 mb-2">日期<span class="text-red-500">*</span></label>
-                    <input type="text" id="eventDate" class="w-full p-2 border rounded" readonly required>
-                    <div class="text-xs text-red-500 mt-1" id="eventDateError"></div>
-                    <label for="eventStartTime" class="block text-gray-700 mb-2 mt-4">開始時間<span class="text-red-500">*</span></label>
-                    <input type="time" id="eventStartTime" class="w-full p-2 border rounded" placeholder="請選擇起始時間" required>
-                    <div class="text-xs text-red-500 mt-1" id="eventStartTimeError"></div>
-                    <label for="eventEndTime" class="block text-gray-700 mb-2 mt-4">結束時間<span class="text-red-500">*</span></label>
-                    <input type="time" id="eventEndTime" class="w-full p-2 border rounded" placeholder="請選擇結束時間" required>
-                    <div class="text-xs text-red-500 mt-1" id="eventEndTimeError"></div>
-                    <label class="block text-gray-700 mb-2 mt-4">場地（可複選）<span class="text-red-500">*</span></label>
-                    <div id="venueSelector" class="grid grid-cols-2 gap-2"></div>
+                <button type="button" class="accordion-header w-full text-left py-3 px-2 font-bold text-lg border-b focus:outline-none" aria-expanded="true">Step 2：地點選擇 ▼</button>
+                <div class="accordion-content p-2">
+                    <div id="venueSelector" class="grid grid-cols-3 gap-2"></div>
                     <div class="text-xs text-red-500 mt-1" id="venueSelectorError"></div>
                 </div>
             </div>
-            <!-- Accordion Step 3：聯絡資訊 -->
+            <!-- Accordion Step 3：負責人資訊 -->
             <div class="accordion-step" id="accordionStep3">
-                <button type="button" class="accordion-header w-full text-left py-3 px-2 font-bold text-lg border-b focus:outline-none" aria-expanded="false">3. 聯絡資訊</button>
-                <div class="accordion-content p-2 hidden">
-                    <label for="eventOrganizer" class="block text-gray-700 mb-2">負責人<span class="text-red-500">*</span></label>
-                    <input type="text" id="eventOrganizer" class="w-full p-2 border rounded mb-2" placeholder="請輸入負責人姓名" required>
-                    <div class="text-xs text-red-500 mt-1" id="eventOrganizerError"></div>
-                    <label for="eventOrganizerPhone" class="block text-gray-700 mb-2">電話<span class="text-red-500">*</span></label>
-                    <input type="tel" id="eventOrganizerPhone" class="w-full p-2 border rounded" placeholder="請輸入負責人電話" required>
-                    <div class="text-xs text-red-500 mt-1" id="eventOrganizerPhoneError"></div>
+                <button type="button" class="accordion-header w-full text-left py-3 px-2 font-bold text-lg border-b focus:outline-none" aria-expanded="true">Step 3：負責人資訊 ▼</button>
+                <div class="accordion-content p-2">
+                    <div class="mb-2">
+                        <label for="eventOrganizer" class="block text-gray-700 mb-1">姓名<span class="text-red-500">*</span></label>
+                        <input type="text" id="eventOrganizer" class="w-full p-2 border rounded" placeholder="請輸入負責人姓名" required>
+                        <div class="text-xs text-red-500 mt-1" id="eventOrganizerError"></div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="eventOrganizerPhone" class="block text-gray-700 mb-1">電話<span class="text-red-500">*</span></label>
+                        <input type="tel" id="eventOrganizerPhone" class="w-full p-2 border rounded" placeholder="請輸入負責人電話" required>
+                        <div class="text-xs text-red-500 mt-1" id="eventOrganizerPhoneError"></div>
+                    </div>
                 </div>
             </div>
             <!-- Accordion底部按鈕 -->
-            <div class="flex justify-between space-x-2 mt-6">
-                <button id="saveEvent" class="btn-primary btn-icon hidden" type="submit"><span class="icon">＋</span>儲存</button>
+            <div class="flex justify-center space-x-4 mt-6">
                 <button id="cancelEvent" class="btn-secondary btn-icon" type="button"><span class="icon">✖️</span>取消</button>
+                <button id="saveEvent" class="btn-primary btn-icon" type="submit"><span class="icon">＋</span>儲存</button>
             </div>
         </form>
     </div>
