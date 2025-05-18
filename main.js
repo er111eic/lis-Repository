@@ -181,6 +181,27 @@ $(function() {
 
   // 強化標題
   $('#eventModalTitle, .text-3xl').addClass('modal-title');
+
+  // === 正確綁定所有按鈕 click 事件 ===
+  $('#prevMonth').off('click').on('click', function() {
+    currentDate.setMonth(currentDate.getMonth()-1);
+    updateMonthYearDisplay();
+    renderCalendar();
+  });
+  $('#nextMonth').off('click').on('click', function() {
+    currentDate.setMonth(currentDate.getMonth()+1);
+    updateMonthYearDisplay();
+    renderCalendar();
+  });
+  $('#cancelEvent').off('click').on('click', closeEventModal);
+  $('#saveEvent').off('click').on('click', function(e) {
+    e.preventDefault();
+    if (!validateEventForm()) return;
+    saveEvent();
+  });
+  $('#closeViewEvent').off('click').on('click', closeViewEventModal);
+  $('#editEvent').off('click').on('click', editEvent);
+  $('#deleteEvent').off('click').on('click', deleteEvent);
 });
 function updateMonthYearDisplay() {
   const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
