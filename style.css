@@ -33,6 +33,13 @@ body {
         font-size: 0.9rem;
         padding: 0.5rem 0.2rem;
     }
+    .calendar-day, .calendar-day .event {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    .calendar-day .event {
+        margin-bottom: 6px;
+    }
     .text-3xl {
         font-size: 1.5rem !important;
     }
@@ -49,19 +56,32 @@ body {
         font-size: 0.8rem;
         padding: 0.2rem 0.1rem;
     }
-    .text-3xl {
-        font-size: 1.1rem !important;
+    .calendar-day, .calendar-day .event {
+        min-width: 44px;
+        min-height: 44px;
     }
-    .text-xl {
-        font-size: 0.95rem !important;
+    .calendar-day .event {
+        margin-bottom: 6px;
     }
-    .venue-checkbox {
-        width: 1em;
-        height: 1em;
+    .grid-cols-7 {
+        grid-template-columns: 1fr;
+        grid-auto-rows: minmax(44px, auto);
     }
-    .host-radio {
-        width: 1em;
-        height: 1em;
+    .calendar-day {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .calendar-day .events-container {
+        gap: 4px;
+    }
+    .calendar-day .event {
+        width: 100%;
+    }
+    .calendar-day .text-right {
+        text-align: left;
+        margin-bottom: 0.2em;
     }
     .p-6 {
         padding: 0.5rem !important;
@@ -182,4 +202,12 @@ body {
 }
 .host-radio {
     accent-color: #6366f1;
+}
+/* 提高按鈕與操作元素點擊區域 */
+button, .btn-primary, .btn-secondary {
+    min-height: 44px;
+    min-width: 44px;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    margin-bottom: 0.3em;
 }
