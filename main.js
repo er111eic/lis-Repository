@@ -363,3 +363,64 @@ $('#eventEndTime').on('change', function() {
     $(this).val('');
   }
 });
+
+// ======= 表單即時驗證與提示（繁體中文）=======
+function validateEventForm() {
+  let valid = true;
+  // 清空所有錯誤訊息
+  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  // 活動名稱
+  if (!$('#eventTitle').val().trim()) {
+    $('#eventTitleError').text('請填寫活動名稱');
+    valid = false;
+  }
+  // 主辦單位
+  if (!$('input[name="eventHostType"]:checked').val()) {
+    $('#eventHostTypeError').text('請選擇主辦單位');
+    valid = false;
+  }
+  // 開始時間
+  if (!$('#eventStartTime').val()) {
+    $('#eventStartTimeError').text('請選擇開始時間');
+    valid = false;
+  }
+  // 結束時間
+  if (!$('#eventEndTime').val()) {
+    $('#eventEndTimeError').text('請選擇結束時間');
+    valid = false;
+  } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
+    $('#eventEndTimeError').text('結束時間必須晚於開始時間');
+    valid = false;
+  }
+  // 場地
+  if ($('.venue-checkbox:checked').length === 0) {
+    $('#venueSelectorError').text('請選擇場地');
+    valid = false;
+  }
+  // 負責人
+  if (!$('#eventOrganizer').val().trim()) {
+    $('#eventOrganizerError').text('請輸入負責人姓名');
+    valid = false;
+  }
+  // 電話
+  if (!$('#eventOrganizerPhone').val().trim()) {
+    $('#eventOrganizerPhoneError').text('請輸入負責人電話');
+    valid = false;
+  }
+  return valid;
+}
+
+// 綁定即時驗證
+$(function() {
+  $('#eventTitle, #eventOrganizer, #eventOrganizerPhone').on('input', validateEventForm);
+  $('input[name="eventHostType"]').on('change', validateEventForm);
+  $('#eventStartTime, #eventEndTime').on('change', validateEventForm);
+  $(document).on('change', '.venue-checkbox', validateEventForm);
+
+  // 攔截表單送出
+  $('#eventModal form').on('submit', async function(e) {
+    e.preventDefault();
+    if (!validateEventForm()) return;
+    await saveEvent();
+  });
+});
