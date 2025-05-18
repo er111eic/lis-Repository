@@ -488,9 +488,27 @@ $(function() {
   $('.accordion-header').off('click');
   // 開啟表單時不再需要 showAccordionStep
   window.openEventModal = function(dateStr, isEdit=false) {
-    // ...existing code...
-    // 移除 showAccordionStep(1);
-    // ...existing code...
+    selectedEventId = null;
+    currentEventDate = dateStr;
+    // 設定日期欄位
+    $('#eventDate').val(dateStr || '');
+    // 清空表單欄位
+    $('#eventTitle').val('');
+    $("input[name='eventHostType']").prop('checked', false);
+    $('#eventStartTime').val('');
+    $('#eventEndTime').val('');
+    $('#eventOrganizer').val('');
+    $('#eventOrganizerPhone').val('');
+    selectedVenues = [];
+    renderVenueSelector && renderVenueSelector();
+    // 清空錯誤訊息
+    $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+    // 標題
+    $('#eventModalTitle').text('新增活動');
+    // 顯示 Modal
+    $('#eventModal').removeClass('hidden');
+    // 關閉活動詳情視窗（避免重疊）
+    $('#viewEventModal').addClass('hidden');
   };
   // 編輯活動時不再需要 showAccordionStep
   window.editEvent = function() {
