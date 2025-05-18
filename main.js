@@ -202,6 +202,12 @@ $(function() {
   $('#closeViewEvent').off('click').on('click', closeViewEventModal);
   $('#editEvent').off('click').on('click', editEvent);
   $('#deleteEvent').off('click').on('click', deleteEvent);
+  // 讓點擊活動詳情視窗以外區域可關閉
+  $('#viewEventModal').off('mousedown').on('mousedown', function(e) {
+    if (e.target === this) {
+      closeViewEventModal();
+    }
+  });
 });
 function updateMonthYearDisplay() {
   const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
