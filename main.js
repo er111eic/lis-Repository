@@ -166,6 +166,8 @@ $(function() {
     updateMonthYearDisplay();
     renderCalendar();
   });
+  $('#prevMonth').html('<span class="icon">&#8592;</span>');
+  $('#nextMonth').html('<span class="icon">&#8594;</span>');
   $('#prevMonth').click(() => { currentDate.setMonth(currentDate.getMonth()-1); updateMonthYearDisplay(); renderCalendar(); });
   $('#nextMonth').click(() => { currentDate.setMonth(currentDate.getMonth()+1); updateMonthYearDisplay(); renderCalendar(); });
   $('#cancelEvent').click(closeEventModal);
@@ -176,6 +178,16 @@ $(function() {
   $('#eventStartTime,#eventEndTime').change(renderVenueSelector);
   $('#cancelImport').click(closeImportModal);
   $('#confirmImport').click(importData);
+
+  // 新增/編輯/刪除按鈕圖示與樣式
+  $('#saveEvent').addClass('btn-primary btn-icon').prepend('<span class="icon">＋</span>');
+  $('#cancelEvent').addClass('btn-secondary btn-icon').prepend('<span class="icon">✖️</span>');
+  $('#editEvent').addClass('btn-primary btn-icon').prepend('<span class="icon">✏️</span>');
+  $('#deleteEvent').addClass('btn-secondary btn-icon').prepend('<span class="icon">🗑️</span>');
+  $('#closeViewEvent').addClass('btn-secondary btn-icon').prepend('<span class="icon">✖️</span>');
+
+  // 強化標題
+  $('#eventModalTitle, .text-3xl').addClass('modal-title');
 });
 function updateMonthYearDisplay() {
   const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
@@ -278,7 +290,7 @@ function editEvent() {
     showToast('無法編輯：未選擇活動', 'error');
     return;
   }
-  // 取得正確的活動物件
+   // 取得正確的活動物件
   let ev = null;
   // 先嘗試用 currentEventDate
   if (events[currentEventDate]) {
