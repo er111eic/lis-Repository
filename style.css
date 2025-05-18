@@ -51,37 +51,34 @@ body {
     }
 }
 @media (max-width: 600px) {
-    .calendar-day {
-        min-height: 45px;
-        font-size: 0.8rem;
-        padding: 0.2rem 0.1rem;
-    }
-    .calendar-day, .calendar-day .event {
-        min-width: 44px;
-        min-height: 44px;
-    }
-    .calendar-day .event {
-        margin-bottom: 6px;
-    }
-    .grid-cols-7 {
-        grid-template-columns: 1fr;
-        grid-auto-rows: minmax(44px, auto);
+    /* 日曆改為單欄垂直列表，每天一行 */
+    #calendar.grid-cols-7 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
     }
     .calendar-day {
-        width: 100%;
+        width: 100% !important;
+        min-width: 0 !important;
         display: flex;
         flex-direction: column;
         align-items: stretch;
-    }
-    .calendar-day .events-container {
-        gap: 4px;
-    }
-    .calendar-day .event {
-        width: 100%;
+        min-height: 60px;
+        margin-bottom: 0.5em;
     }
     .calendar-day .text-right {
         text-align: left;
         margin-bottom: 0.2em;
+    }
+    .calendar-day .events-container {
+        gap: 4px;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .calendar-day .event {
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 4px;
     }
     .p-6 {
         padding: 0.5rem !important;
@@ -106,6 +103,19 @@ body {
     }
     #eventModal button {
         width: 100%;
+    }
+    #viewEventModal .bg-white.rounded-lg.p-6.w-full.max-w-md {
+        max-width: 98vw !important;
+        width: 98vw !important;
+        min-width: 0 !important;
+        padding: 0.5rem !important;
+    }
+    #viewEventModal .flex.flex-col.space-y-2 {
+        gap: 0.5rem;
+    }
+    #viewEventModal button {
+        width: 100%;
+        min-height: 44px;
     }
 }
 /* 1. 標題與按鈕樣式優化 */
@@ -210,4 +220,11 @@ button, .btn-primary, .btn-secondary {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     margin-bottom: 0.3em;
+}
+#viewEventModal .bg-white.rounded-lg.p-6.w-full.max-w-md {
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
