@@ -122,46 +122,65 @@ function renderCalendar() {
   });
 }
 
-function openEventModal(dateStr, isEdit=false) {
-  currentEventDate = dateStr;
-  $('#eventModalTitle').text(isEdit?'編輯活動':'新增活動');
-  $('#eventDate').val(dateStr);
-  if(!isEdit) { $('#eventTitle').val(''); $("input[name='eventHostType']").prop('checked',false); $('#eventStartTime').val('09:00'); $('#eventEndTime').val('10:00'); $('#eventOrganizer').val(''); $('#eventOrganizerPhone').val(''); selectedVenues=[]; }
-  renderVenueSelector();
-  $('#eventModal').removeClass('hidden');
+let eventFormStep = 1;
+function showEventFormStep(step) {
+  eventFormStep = step;
+  // 顯示/隱藏步驟區塊
+  $('#eventStep1').toggleClass('hidden', step !== 1);
+  $('#eventStep2').toggleClass('hidden', step !== 2);
+  $('#eventStep3').toggleClass('hidden', step !== 3);
+  // 按鈕顯示控制
+  $('#prevStep').toggleClass('hidden', step === 1);
+  $('#nextStep').toggleClass('hidden', step === 3);
+  $('#saveEvent').toggleClass('hidden', step !== 3);
 }
-function closeEventModal() { $('#eventModal').addClass('hidden'); selectedEventId=null; currentEventDate=null; }
-function renderVenueSelector() {
-  const dateStr = $('#eventDate').val(), startTime=$('#eventStartTime').val(), endTime=$('#eventEndTime').val();
-  const $venueSel = $('#venueSelector').empty();
-  venues.forEach(venue=>{
-    const isBooked = checkVenueBooked(dateStr,venue,startTime,endTime);
-    const checked = selectedVenues.includes(venue);
-    let html = `<label class='p-2 border rounded flex items-center cursor-pointer ${isBooked?'venue-booked bg-gray-100 text-gray-400':''}'>`;
-    html += `<input type='checkbox' class='venue-checkbox' value='${venue}' ${checked&&!isBooked?'checked':''} ${isBooked?'disabled':''}/>`;
-    html += `<div class='w-4 h-4 rounded mr-2' style='background:${venueColors[venue]}'></div><span class='flex-1'>${venue}</span>`;
-    if(isBooked) html += `<span class='text-xs text-red-500 ml-1'>已預訂</span>`;
-    html += '</label>';
-    $venueSel.append(html);
-  });
-  $('.venue-checkbox').off('change').on('change',function(){
-    const v=$(this).val();
-    if(this.checked) selectedVenues.push(v); else selectedVenues=selectedVenues.filter(x=>x!==v);
-    renderVenueSelector();
-  });
+// 分步驟驗證
+function validateStep(step) {
+  let valid = true;
+  if (step === 1) {
+    $('#eventTitleError').text('');
+    $('#eventHostTypeError').text('');
+    if (!$('#eventTitle').val().trim()) {
+      $('#eventTitleError').text('請填寫活動名稱');
+      valid = false;
+    }
+    if (!$('input[name="eventHostType"]:checked').val()) {
+      $('#eventHostTypeError').text('請選擇主辦單位');
+      valid = false;
+    }
+  } else if (step === 2) {
+    $('#eventStartTimeError').text('');
+    $('#eventEndTimeError').text('');
+    $('#venueSelectorError').text('');
+    if (!$('#eventStartTime').val()) {
+      $('#eventStartTimeError').text('請選擇開始時間');
+      valid = false;
+    }
+    if (!$('#eventEndTime').val()) {
+      $('#eventEndTimeError').text('請選擇結束時間');
+      valid = false;
+    } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
+      $('#eventEndTimeError').text('結束時間必須晚於開始時間');
+      valid = false;
+    }
+    if ($('.venue-checkbox:checked').length === 0) {
+      $('#venueSelectorError').text('請選擇場地');
+      valid = false;
+    }
+  } else if (step === 3) {
+    $('#eventOrganizerError').text('');
+    $('#eventOrganizerPhoneError').text('');
+    if (!$('#eventOrganizer').val().trim()) {
+      $('#eventOrganizerError').text('請輸入負責人姓名');
+      valid = false;
+    }
+    if (!$('#eventOrganizerPhone').val().trim()) {
+      $('#eventOrganizerPhoneError').text('請輸入負責人電話');
+      valid = false;
+    }
+  }
+  return valid;
 }
-function checkVenueBooked(dateStr,venue,startTime,endTime) {
-  if(!events[dateStr]) return false;
-  const newStart=timeToMinutes(startTime), newEnd=timeToMinutes(endTime);
-  if(newStart>=newEnd) return false;
-  // 嚴格審查：同一時段同一場地不可重複
-  return events[dateStr].some(ev=>Array.isArray(ev.venues)&&ev.venues.includes(venue)&&!(selectedEventId&&ev.id===selectedEventId)&&overlap(ev.startTime,ev.endTime,startTime,endTime));
-}
-function overlap(s1,e1,s2,e2){
-  const a=timeToMinutes(s1),b=timeToMinutes(e1),c=timeToMinutes(s2),d=timeToMinutes(e2);
-  return c<b&&d>a;
-}
-function timeToMinutes(t){if(!t||t.indexOf(':')===-1)return 0;const[a,b]=t.split(':').map(Number);return a*60+b;}
 $(function() {
   loadEvents().then(() => {
     updateMonthYearDisplay();
@@ -207,6 +226,15 @@ $(function() {
     if (e.target === this) {
       closeViewEventModal();
     }
+  });
+  // 分步驟切換
+  $('#nextStep').off('click').on('click', function() {
+    if (validateStep(eventFormStep)) {
+      showEventFormStep(eventFormStep + 1);
+    }
+  });
+  $('#prevStep').off('click').on('click', function() {
+    showEventFormStep(eventFormStep - 1);
   });
 });
 function updateMonthYearDisplay() {
@@ -344,6 +372,7 @@ function editEvent() {
   $('#eventModalTitle').text('編輯活動');
   $('#eventModal').removeClass('hidden');
   $('#viewEventModal').addClass('hidden');
+  showEventFormStep(1);
 }
 
 function viewEvent(eventId, dateStr) {
