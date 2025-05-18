@@ -86,6 +86,18 @@ body {
     .rounded-lg {
         border-radius: 0.5rem !important;
     }
+    #eventModal {
+        overflow-y: auto;
+        max-height: 95vh;
+        align-items: flex-start !important;
+    }
+    #eventModal form {
+        max-height: 90vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
     #eventModal .max-w-md {
         max-width: 95vw !important;
         width: 95vw !important;
