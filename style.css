@@ -243,3 +243,22 @@ button, .btn-primary, .btn-secondary {
 #prevStep, #nextStep, #saveEvent, #cancelEvent {
   min-width: 90px;
 }
+.accordion-header {
+  background: #f3f4f6;
+  border-radius: 0.375rem 0.375rem 0 0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.accordion-header[aria-expanded="true"] {
+  background: #6366f1;
+  color: #fff;
+}
+.accordion-content {
+  background: #fff;
+  border-radius: 0 0 0.375rem 0.375rem;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+}
+.accordion-step + .accordion-step {
+  margin-top: 0.5em;
+}

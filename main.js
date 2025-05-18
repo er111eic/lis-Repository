@@ -480,3 +480,95 @@ $(function() {
     await saveEvent();
   });
 });
+
+let accordionStep = 1;
+function showAccordionStep(step) {
+  accordionStep = step;
+  // 只展開當前步驟
+  [1,2,3].forEach(i => {
+    const expanded = (i === step);
+    $(`#accordionStep${i} .accordion-content`).toggleClass('hidden', !expanded);
+    $(`#accordionStep${i} .accordion-header`).attr('aria-expanded', expanded);
+  });
+  // 只有最後一段顯示儲存
+  $('#saveEvent').toggleClass('hidden', step !== 3);
+}
+function validateAccordionStep(step) {
+  let valid = true;
+  if (step === 1) {
+    $('#eventTitleError').text('');
+    $('#eventHostTypeError').text('');
+    if (!$('#eventTitle').val().trim()) {
+      $('#eventTitleError').text('請填寫活動名稱');
+      valid = false;
+    }
+    if (!$('input[name="eventHostType"]:checked').val()) {
+      $('#eventHostTypeError').text('請選擇主辦單位');
+      valid = false;
+    }
+  } else if (step === 2) {
+    $('#eventStartTimeError').text('');
+    $('#eventEndTimeError').text('');
+    $('#venueSelectorError').text('');
+    if (!$('#eventStartTime').val()) {
+      $('#eventStartTimeError').text('請選擇開始時間');
+      valid = false;
+    }
+    if (!$('#eventEndTime').val()) {
+      $('#eventEndTimeError').text('請選擇結束時間');
+      valid = false;
+    } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
+      $('#eventEndTimeError').text('結束時間必須晚於開始時間');
+      valid = false;
+    }
+    if ($('.venue-checkbox:checked').length === 0) {
+      $('#venueSelectorError').text('請選擇場地');
+      valid = false;
+    }
+  } else if (step === 3) {
+    $('#eventOrganizerError').text('');
+    $('#eventOrganizerPhoneError').text('');
+    if (!$('#eventOrganizer').val().trim()) {
+      $('#eventOrganizerError').text('請輸入負責人姓名');
+      valid = false;
+    }
+    if (!$('#eventOrganizerPhone').val().trim()) {
+      $('#eventOrganizerPhoneError').text('請輸入負責人電話');
+      valid = false;
+    }
+  }
+  return valid;
+}
+$(function() {
+  // Accordion header 點擊
+  $('.accordion-header').off('click').on('click', function() {
+    const step = $(this).closest('.accordion-step').index('.accordion-step') + 1;
+    // 只能展開下一步或已完成的步驟
+    if (step === accordionStep) return;
+    if (step > accordionStep) {
+      // 需驗證前一步
+      if (!validateAccordionStep(accordionStep)) return;
+    }
+    showAccordionStep(step);
+  });
+  // 開啟表單時預設展開第一步
+  window.openEventModal = function(dateStr, isEdit=false) {
+    // ...existing code...
+    showAccordionStep(1);
+    // ...existing code...
+  };
+  // 編輯活動時也展開第一步
+  window.editEvent = function() {
+    // ...existing code...
+    showAccordionStep(1);
+    // ...existing code...
+  };
+  // 表單送出時驗證所有欄位
+  $('#eventModal form').off('submit').on('submit', async function(e) {
+    e.preventDefault();
+    if (!validateAccordionStep(1)) { showAccordionStep(1); return; }
+    if (!validateAccordionStep(2)) { showAccordionStep(2); return; }
+    if (!validateAccordionStep(3)) { showAccordionStep(3); return; }
+    await saveEvent();
+  });
+});
