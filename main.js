@@ -484,27 +484,18 @@ $(function() {
 // Accordion 不再限制只能展開一段，header 僅做視覺效果
 // 送出時驗證所有欄位
 $(function() {
-  // Accordion header 點擊
-  $('.accordion-header').off('click').on('click', function() {
-    const step = $(this).closest('.accordion-step').index('.accordion-step') + 1;
-    // 只能展開下一步或已完成的步驟
-    if (step === accordionStep) return;
-    if (step > accordionStep) {
-      // 需驗證前一步
-      if (!validateAccordionStep(accordionStep)) return;
-    }
-    showAccordionStep(step);
-  });
-  // 開啟表單時預設展開第一步
+  // Accordion header 點擊（已無需展開/收合功能，僅保留視覺效果）
+  $('.accordion-header').off('click');
+  // 開啟表單時不再需要 showAccordionStep
   window.openEventModal = function(dateStr, isEdit=false) {
     // ...existing code...
-    showAccordionStep(1);
+    // 移除 showAccordionStep(1);
     // ...existing code...
   };
-  // 編輯活動時也展開第一步
+  // 編輯活動時不再需要 showAccordionStep
   window.editEvent = function() {
     // ...existing code...
-    showAccordionStep(1);
+    // 移除 showAccordionStep(1);
     // ...existing code...
   };
   // 表單送出時驗證所有欄位
