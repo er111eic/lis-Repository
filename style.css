@@ -1,3 +1,8 @@
+@media (max-width: 600px) {
+  .weekday-header-row {
+    display: none !important;
+  }
+}
 /* 修正 RWD 下 eventModal .hidden 失效問題 */
 #eventModal.hidden {
   display: none !important;
@@ -377,4 +382,7 @@ button, .btn-primary, .btn-secondary {
   min-width: 2em;
   text-align: center;
   padding: 0 0.3em;
+  font-size: 1.2em;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(239,68,68,0.10);
 }
