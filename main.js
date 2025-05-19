@@ -1,9 +1,10 @@
-// 將時間字串（HH:mm）轉為分鐘數
+// 將時間字串（HH:mm）轉為分鐘數，並掛到 window 以防 Safari 作用域問題
 function timeToMinutes(timeStr) {
   if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   return h * 60 + m;
 }
+window.timeToMinutes = timeToMinutes;
 
 // Firebase 設定
 const firebaseConfig = {
