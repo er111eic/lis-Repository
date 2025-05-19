@@ -159,7 +159,9 @@ function renderCalendar() {
     const lunarStr = getLunarDateString(new Date(year, month, day));
     let html = `<div class='calendar-day bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
     if (isToday) {
-      html += `<div class='text-right font-semibold mb-1 today-date'>${day}</div><div class='events-container'>`;
+      html += `<div class='text-right font-semibold mb-1'>` +
+        `<span class='today-date'>${day}</span>` +
+        `<span class="lunar-date ml-1">${lunarStr}</span></div><div class='events-container'>`;
     } else {
       html += `<div class='text-right font-semibold mb-1'>${day}<span class="lunar-date ml-1">${lunarStr}</span></div><div class='events-container'>`;
     }
