@@ -1,3 +1,8 @@
+// 強制隱藏 eventModal，避免異常狀態殘留
+$(document).ready(function(){
+  $('#eventModal').addClass('hidden');
+});
+
 // 將時間字串（HH:mm）轉為分鐘數，並掛到 window 以防 Safari 作用域問題
 function timeToMinutes(timeStr) {
   if (!timeStr) return 0;
@@ -295,6 +300,8 @@ $(function() {
   $('#prevStep').off('click').on('click', function() {
     showEventFormStep(eventFormStep - 1);
   });
+  // 保險：每次進入頁面都隱藏 eventModal，避免異常狀態
+  $('#eventModal').addClass('hidden');
 });
 function updateMonthYearDisplay() {
   const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
