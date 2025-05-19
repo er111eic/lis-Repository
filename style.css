@@ -96,7 +96,7 @@ body {
         min-width: 100vw;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        z-index: 50;
+        z-index: 9999 !important;
         padding-top: 6vh !important;
         padding-bottom: 4vh !important;
         box-sizing: border-box;
@@ -108,7 +108,28 @@ body {
         background: rgba(255,255,255,0.97);
         max-height: 88vh;
         overflow-y: auto;
-        width: 95vw !important;
+        width: 98vw !important;
+        min-width: 0 !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    #eventModal .flex.justify-end {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    #eventModal button {
+        width: 100%;
+    }
+    #eventModal .p-6 {
+        padding: 0.5rem !important;
+    }
+    #eventModal input, #eventModal textarea {
+        font-size: 1rem !important;
+    }
+    #eventModal .max-w-md {
+        max-width: 98vw !important;
+        width: 98vw !important;
         min-width: 0 !important;
     }
     #eventModal form {
