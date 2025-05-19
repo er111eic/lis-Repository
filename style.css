@@ -1,6 +1,8 @@
 body {
-    font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
-    background-color: #f0f4f8;
+    font-family: 'San Francisco', 'PingFang TC', 'Microsoft JhengHei', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    color: #222;
+    min-height: 100vh;
 }
 .calendar-day {
     min-height: 100px;
@@ -137,39 +139,76 @@ body {
     letter-spacing: 0.02em;
 }
 .btn-primary {
-    background: #6366f1;
+    background: linear-gradient(90deg, #6366f1 60%, #818cf8 100%);
     color: #fff;
-    font-weight: bold;
-    border-radius: 0.375rem;
-    padding: 0.5rem 1.2rem;
-    transition: background 0.2s;
-    box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+    font-weight: 600;
+    border-radius: 0.8em;
+    padding: 0.6em 1.5em;
+    font-size: 1.08em;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.10);
+    border: none;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 .btn-primary:hover {
-    background: #4f46e5;
+    background: linear-gradient(90deg, #4f46e5 60%, #6366f1 100%);
+    box-shadow: 0 4px 16px rgba(99,102,241,0.13);
 }
 .btn-secondary {
-    background: #e5e7eb;
-    color: #374151;
+    background: #f3f4f6;
+    color: #6366f1;
     font-weight: 500;
-    border-radius: 0.375rem;
-    padding: 0.5rem 1.2rem;
-    transition: background 0.2s;
+    border-radius: 0.8em;
+    padding: 0.6em 1.5em;
+    font-size: 1.08em;
+    border: none;
+    transition: background 0.2s, color 0.2s;
 }
 .btn-secondary:hover {
-    background: #d1d5db;
+    background: #e0e7ff;
+    color: #4f46e5;
 }
-/* 2. 按鈕圖示與間距 */
-.btn-icon {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
-    font-size: 1em;
+.btn-apple-edit {
+    background: #f1f5fb;
+    color: #6366f1;
+    border-radius: 0.8em;
+    font-weight: 600;
+    border: 1.5px solid #c7d2fe;
+    padding: 0.6em 0.5em;
+    font-size: 1.08em;
+    transition: background 0.2s, border 0.2s;
 }
-.btn-icon svg, .btn-icon .icon {
-    width: 1.1em;
-    height: 1.1em;
-    margin-right: 0.3em;
+.btn-apple-edit:hover {
+    background: #e0e7ff;
+    border-color: #6366f1;
+}
+.btn-apple-delete {
+    background: #fff1f2;
+    color: #ef4444;
+    border-radius: 0.8em;
+    font-weight: 600;
+    border: 1.5px solid #fecaca;
+    padding: 0.6em 0.5em;
+    font-size: 1.08em;
+    transition: background 0.2s, border 0.2s;
+}
+.btn-apple-delete:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
+}
+.btn-apple-cancel {
+    background: #f3f4f6;
+    color: #64748b;
+    border-radius: 0.8em;
+    font-weight: 600;
+    border: 1.5px solid #e5e7eb;
+    padding: 0.6em 0.5em;
+    font-size: 1.08em;
+    transition: background 0.2s, border 0.2s;
+}
+.btn-apple-cancel:hover {
+    background: #e0e7ff;
+    color: #6366f1;
+    border-color: #6366f1;
 }
 .event {
     border-radius: 4px;
@@ -180,6 +219,19 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.event-detail-content .flex-row {
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 0.2em;
+    margin-bottom: 0.2em;
+}
+.event-detail-content .font-semibold {
+    color: #6366f1;
+    font-weight: 700;
+}
+.event-detail-content .bg-gray-50 {
+    background: #f8fafc !important;
+    color: #222;
 }
 .venue-晑德-佛堂 { background-color: #ffcdd2; }
 .venue-晑德-廚房 { background-color: #c8e6c9; }
