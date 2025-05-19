@@ -22,6 +22,14 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
+    /* 強制初始隱藏 eventModal，避免手機/桌面一進來就顯示 */
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('eventModal');
+        if (modal) modal.classList.add('hidden');
+      });
+    </script>
       #version-badge {
         position: fixed;
         top: 16px;
