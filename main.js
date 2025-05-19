@@ -630,3 +630,10 @@ function renderVenueSelector() {
     validateEventForm && validateEventForm();
   });
 }
+
+// 將 "HH:mm" 轉為分鐘數
+function timeToMinutes(str) {
+  if (!str) return 0;
+  const [h, m] = str.split(':').map(Number);
+  return h * 60 + m;
+}
