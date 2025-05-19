@@ -439,14 +439,22 @@ function viewEvent(eventId, dateStr) {
   if (!ev) return;
   selectedEventId = eventId;
   currentEventDate = dateStr;
-  // 填入活動資訊
-  $('#viewEventTitle').text(ev.title || '');
-  $('#viewEventTime').text(`${ev.startTime || ''} - ${ev.endTime || ''}`);
-  const venueText = (ev.venues || []).map(v => v.split('-').pop()).join(', ');
-  $('#viewEventVenue').text(venueText); // 修正id
-  $('#viewEventHostType').text(ev.hostType || '');
-  $('#viewEventOrganizer').text(ev.organizer || '');
-  $('#viewEventOrganizerPhone').text(ev.organizerPhone || '');
+  // 以左右排列方式顯示活動詳情
+  const detailRows = [
+    { label: '活動名稱', value: ev.title || '' },
+    { label: '主辦單位', value: ev.hostType || '' },
+    { label: '日期', value: dateStr },
+    { label: '時間', value: `${ev.startTime || ''} - ${ev.endTime || ''}` },
+    { label: '場地', value: (ev.venues || []).map(v => v.split('-').pop()).join(', ') },
+    { label: '負責人', value: ev.organizer || '' },
+    { label: '電話', value: ev.organizerPhone || '' }
+  ];
+  let html = '<div class="flex flex-col gap-2">';
+  detailRows.forEach(row => {
+    html += `<div class="flex flex-row items-center mb-1"><span class="font-semibold w-24 text-gray-700">${row.label}：</span><span class="flex-1 p-1 bg-gray-50 rounded">${row.value}</span></div>`;
+  });
+  html += '</div>';
+  $('#viewEventModal .event-detail-content').html(html);
   // 顯示 modal
   $('#viewEventModal').removeClass('hidden');
 }
