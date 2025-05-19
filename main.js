@@ -1,17 +1,6 @@
-// 強制隱藏 eventModal，避免異常狀態殘留
+// 預設隱藏 eventModal，避免一進入就顯示
 $(document).ready(function(){
-  // 預設隱藏 eventModal，避免一進入就顯示
   $('#eventModal').addClass('hidden');
-  // 強制隱藏，避免異常狀態
-  setTimeout(function() {
-    $('#eventModal').addClass('hidden');
-  }, 100);
-  // Debug log
-  console.log('eventModal 強制隱藏於載入時', $('#eventModal').hasClass('hidden'));
-  // 極端保險：每0.5秒強制隱藏一次（測試用，若正常請移除）
-  setInterval(function() {
-    $('#eventModal').addClass('hidden');
-  }, 500);
 });
 
 // 將時間字串（HH:mm）轉為分鐘數，並掛到 window 以防 Safari 作用域問題
