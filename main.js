@@ -1,6 +1,12 @@
 // 強制隱藏 eventModal，避免異常狀態殘留
 $(document).ready(function(){
+  // 預設隱藏 eventModal，避免一進入就顯示
   $('#eventModal').addClass('hidden');
+  // 修正：移除 eventModal 上的 hidden class 只允許 openEventModal 時觸發
+  // 若 eventModal 沒有 hidden class，強制加上
+  if (!$('#eventModal').hasClass('hidden')) {
+    $('#eventModal').addClass('hidden');
+  }
 });
 
 // 將時間字串（HH:mm）轉為分鐘數，並掛到 window 以防 Safari 作用域問題
