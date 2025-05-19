@@ -167,9 +167,12 @@ function renderCalendar() {
       if(!ev||!ev.id) continue;
       const hostType = ev.hostType || '';
       const borderColor = hostTypeBorder[hostType] || '#bdbdbd';
-      // 活動方塊：底框線=界別，背景色統一
+      // 根據界別顏色產生淡色背景
+      let bgColor = '#f3f4f6';
+      if (hostType === '學界') bgColor = 'rgba(33,150,243,0.10)'; // 藍色淡化
+      if (hostType === '社會界') bgColor = 'rgba(255,152,0,0.13)'; // 橘色淡化
       html += `<div class='event' 
-        style='background:#f3f4f6;border-bottom:4px solid ${borderColor};padding:2px 6px;margin-bottom:2px;cursor:pointer;border-radius:6px;position:relative;' 
+        style='background:${bgColor};border-bottom:4px solid ${borderColor};padding:2px 6px;margin-bottom:2px;cursor:pointer;border-radius:6px;position:relative;' 
         data-event-id='${ev.id}' 
         data-organizer='${ev.organizer||''}'
         title='${ev.title}\n${ev.venues ? ev.venues.join(", ") : ''}\n${ev.startTime}-${ev.endTime}\n${ev.organizer?('負責人:'+ev.organizer):''}'>
