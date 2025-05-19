@@ -1,3 +1,10 @@
+// 將時間字串（HH:mm）轉為分鐘數
+function timeToMinutes(timeStr) {
+  if (!timeStr) return 0;
+  const [h, m] = timeStr.split(':').map(Number);
+  return h * 60 + m;
+}
+
 // Firebase 設定
 const firebaseConfig = {
   apiKey: "999253388381",
