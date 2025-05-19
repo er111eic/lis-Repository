@@ -423,6 +423,10 @@ function editEvent() {
   $('#eventDate').val(currentEventDate);
   renderVenueSelector();
   $('#eventModalTitle').text('編輯活動');
+  // 清空所有錯誤訊息
+  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  // focus 在活動名稱欄位
+  $('#eventTitle').focus();
   $('#eventModal').removeClass('hidden');
   $('#viewEventModal').addClass('hidden');
   // 讓儲存按鈕永遠顯示
@@ -604,6 +608,10 @@ $(function() {
     $('#eventDate').val(currentEventDate);
     renderVenueSelector();
     $('#eventModalTitle').text('編輯活動');
+    // 清空所有錯誤訊息
+    $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+    // focus 在活動名稱欄位
+    $('#eventTitle').focus();
     $('#eventModal').removeClass('hidden');
     $('#viewEventModal').addClass('hidden');
     // 讓儲存按鈕永遠顯示
