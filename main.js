@@ -299,8 +299,8 @@ $(function() {
       closeViewEventModal();
     }
   });
-  // 新增：讓點擊新增/編輯活動表單以外區域可關閉（手機也適用）
-  $('#eventModal').off('mousedown touchstart').on('mousedown touchstart', function(e) {
+  // 修正：讓點擊 eventModal 遮罩區域可關閉（手機與桌面皆適用，避免表單內容阻擋）
+  $('#eventModal').off('click').on('click', function(e) {
     if (e.target === this) {
       closeEventModal();
     }
