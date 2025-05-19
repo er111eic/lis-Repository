@@ -6,6 +6,12 @@ $(document).ready(function(){
   setTimeout(function() {
     $('#eventModal').addClass('hidden');
   }, 100);
+  // Debug log
+  console.log('eventModal 強制隱藏於載入時', $('#eventModal').hasClass('hidden'));
+  // 極端保險：每0.5秒強制隱藏一次（測試用，若正常請移除）
+  setInterval(function() {
+    $('#eventModal').addClass('hidden');
+  }, 500);
 });
 
 // 將時間字串（HH:mm）轉為分鐘數，並掛到 window 以防 Safari 作用域問題
