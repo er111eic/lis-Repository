@@ -1,3 +1,7 @@
+/* 修正 RWD 下 eventModal .hidden 失效問題 */
+#eventModal.hidden {
+  display: none !important;
+}
 /* 農曆日期樣式 */
 .lunar-date {
   font-size: 0.85em;
