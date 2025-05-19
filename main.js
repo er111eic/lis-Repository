@@ -512,9 +512,45 @@ $(function() {
   };
   // 編輯活動時不再需要 showAccordionStep
   window.editEvent = function() {
-    // ...existing code...
-    // 移除 showAccordionStep(1);
-    // ...existing code...
+    if (!currentEventDate || !selectedEventId) {
+      showToast('無法編輯：未選擇活動', 'error');
+      return;
+    }
+     // 取得正確的活動物件
+    let ev = null;
+    // 先嘗試用 currentEventDate
+    if (events[currentEventDate]) {
+      ev = events[currentEventDate].find(e => e && e.id === selectedEventId);
+    }
+    // 若找不到，再全域搜尋一次（避免日期同步問題）
+    if (!ev) {
+      for (const date in events) {
+        ev = events[date].find(e => e && e.id === selectedEventId);
+        if (ev) {
+          currentEventDate = date;
+          break;
+        }
+      }
+    }
+    if (!ev) {
+      showToast('找不到該活動', 'error');
+      return;
+    }
+    // 帶入資料到表單
+    $('#eventTitle').val(ev.title || '');
+    $("input[name='eventHostType']").prop('checked', false);
+    $("input[name='eventHostType'][value='" + (ev.hostType||'') + "']").prop('checked', true);
+    $('#eventStartTime').val(ev.startTime || '');
+    $('#eventEndTime').val(ev.endTime || '');
+    $('#eventOrganizer').val(ev.organizer || '');
+    $('#eventOrganizerPhone').val(ev.organizerPhone || '');
+    selectedVenues = Array.isArray(ev.venues) ? [...ev.venues] : [];
+    $('#eventDate').val(currentEventDate);
+    renderVenueSelector();
+    $('#eventModalTitle').text('編輯活動');
+    $('#eventModal').removeClass('hidden');
+    $('#viewEventModal').addClass('hidden');
+    showEventFormStep(1);
   };
   // 表單送出時驗證所有欄位
   $('#eventModal form').off('submit').on('submit', async function(e) {
@@ -569,3 +605,28 @@ $(function() {
     await saveEvent();
   });
 });
+
+// 場地選擇渲染
+function renderVenueSelector() {
+  const $container = $('#venueSelector').empty();
+  venues.forEach(venue => {
+    const id = 'venue_' + venue.replace(/[^\w]/g, '');
+    const checked = selectedVenues.includes(venue) ? 'checked' : '';
+    $container.append(`
+      <label class="flex items-center mb-1">
+        <input type="checkbox" class="venue-checkbox mr-2" value="${venue}" id="${id}" ${checked}>
+        <span>${venue}</span>
+      </label>
+    `);
+  });
+  // 綁定勾選事件
+  $('.venue-checkbox').off('change').on('change', function() {
+    const v = $(this).val();
+    if ($(this).is(':checked')) {
+      if (!selectedVenues.includes(v)) selectedVenues.push(v);
+    } else {
+      selectedVenues = selectedVenues.filter(x => x !== v);
+    }
+    validateEventForm && validateEventForm();
+  });
+}
