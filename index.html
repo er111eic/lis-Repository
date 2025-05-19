@@ -118,21 +118,21 @@
             <div class="accordion-step" id="accordionStep1">
                 <button type="button" class="accordion-header w-full text-left py-3 px-2 font-bold text-lg border-b focus:outline-none" aria-expanded="true">Step 1：基本資訊 ▼</button>
                 <div class="accordion-content p-2">
-                    <div class="mb-2">
-                        <label for="eventDate" class="block text-gray-700 mb-1">日期</label>
-                        <input type="text" id="eventDate" class="w-full p-2 border rounded" readonly required>
-                        <div class="text-xs text-red-500 mt-1" id="eventDateError"></div>
+                    <div class="mb-2 flex flex-row items-center gap-4">
+                        <label for="eventDate" class="block text-gray-700 mb-1 whitespace-nowrap">日期</label>
+                        <input type="text" id="eventDate" class="w-full p-2 border rounded" readonly required style="max-width: 180px;">
+                        <div class="text-xs text-red-500 mt-1 flex-1" id="eventDateError"></div>
                     </div>
-                    <div class="mb-2">
-                        <label for="eventTitle" class="block text-gray-700 mb-1">活動名稱<span class="text-red-500">*</span></label>
-                        <input type="text" id="eventTitle" class="w-full p-2 border rounded" placeholder="請輸入活動名稱" required>
-                        <div class="text-xs text-red-500 mt-1" id="eventTitleError"></div>
+                    <div class="mb-2 flex flex-row items-center gap-4">
+                        <label for="eventTitle" class="block text-gray-700 mb-1 whitespace-nowrap">活動名稱<span class="text-red-500">*</span></label>
+                        <input type="text" id="eventTitle" class="w-full p-2 border rounded" placeholder="請輸入活動名稱" required style="max-width: 180px;">
+                        <div class="text-xs text-red-500 mt-1 flex-1" id="eventTitleError"></div>
                     </div>
-                    <div class="mb-2">
-                        <label class="block text-gray-700 mb-1">主辦單位<span class="text-red-500">*</span></label>
+                    <div class="mb-2 flex flex-row items-center gap-4">
+                        <label class="block text-gray-700 mb-1 whitespace-nowrap">主辦單位<span class="text-red-500">*</span></label>
                         <label class="inline-flex items-center mr-4"><input type="radio" name="eventHostType" value="學界" class="host-radio mr-2" required>學界</label>
                         <label class="inline-flex items-center"><input type="radio" name="eventHostType" value="社會界" class="host-radio mr-2" required>社會界</label>
-                        <div class="text-xs text-red-500 mt-1" id="eventHostTypeError"></div>
+                        <div class="text-xs text-red-500 mt-1 flex-1" id="eventHostTypeError"></div>
                     </div>
                     <div class="mb-2 flex items-center">
                         <label for="eventStartTime" class="block text-gray-700 mr-2">時間</label>
@@ -160,9 +160,9 @@
                 <div class="accordion-content p-2">
                     <div class="mb-2 flex flex-row items-center gap-4">
                         <label for="eventOrganizer" class="block text-gray-700 mb-1 whitespace-nowrap">姓名<span class="text-red-500">*</span></label>
-                        <input type="text" id="eventOrganizer" class="w-full p-2 border rounded" placeholder="請輸入負責人姓名" required style="max-width: 180px;">
+                        <input type="text" id="eventOrganizer" class="w-full p-2 border rounded" required style="max-width: 180px;">
                         <label for="eventOrganizerPhone" class="block text-gray-700 mb-1 ml-4 whitespace-nowrap">電話<span class="text-red-500">*</span></label>
-                        <input type="tel" id="eventOrganizerPhone" class="w-full p-2 border rounded" placeholder="請輸入負責人電話" required style="max-width: 180px;">
+                        <input type="tel" id="eventOrganizerPhone" class="w-full p-2 border rounded" required style="max-width: 180px;">
                     </div>
                     <div class="flex flex-row gap-4">
                         <div class="text-xs text-red-500 mt-1 flex-1" id="eventOrganizerError"></div>
