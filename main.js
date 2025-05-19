@@ -28,6 +28,48 @@ const venues = [
   "杏德-坤伙"
 ];
 
+// 場地選擇渲染
+function renderVenueSelector() {
+  const $container = $('#venueSelector').empty();
+  venues.forEach(venue => {
+    const id = 'venue_' + venue.replace(/[^\w]/g, '');
+    const checked = selectedVenues.includes(venue) ? 'checked' : '';
+    $container.append(`
+      <label class="flex items-center mb-1">
+        <input type="checkbox" class="venue-checkbox mr-2" value="${venue}" id="${id}" ${checked}>
+        <span>${venue}</span>
+      </label>
+    `);
+  });
+  // 綁定勾選事件
+  $('.venue-checkbox').off('change').on('change', function() {
+    const v = $(this).val();
+    if ($(this).is(':checked')) {
+      if (!selectedVenues.includes(v)) selectedVenues.push(v);
+    } else {
+      selectedVenues = selectedVenues.filter(x => x !== v);
+    }
+    validateEventForm && validateEventForm();
+  });
+}
+// 檢查指定日期、場地、時間區間是否有重疊活動
+function checkVenueBooked(dateStr, venue, startTime, endTime) {
+  if (!events[dateStr]) return false;
+  const start = timeToMinutes(startTime);
+  const end = timeToMinutes(endTime);
+  return events[dateStr].some(ev => {
+    if (!ev.venues || !Array.isArray(ev.venues)) return false;
+    if (!ev.startTime || !ev.endTime) return false;
+    // 編輯時排除自己
+    if (selectedEventId && ev.id === selectedEventId) return false;
+    if (!ev.venues.includes(venue)) return false;
+    const evStart = timeToMinutes(ev.startTime);
+    const evEnd = timeToMinutes(ev.endTime);
+    // 時間有重疊
+    return (start < evEnd && end > evStart);
+  });
+}
+
 // ========== Modal 關閉函式 ==========
 function closeViewEventModal() {
   $('#viewEventModal').addClass('hidden');
