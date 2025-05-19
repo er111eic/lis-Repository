@@ -90,25 +90,26 @@ body {
     }
     #eventModal {
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-start !important;
         justify-content: center !important;
         min-height: 100vh;
         min-width: 100vw;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
         z-index: 50;
+        padding-top: 6vh !important;
+        padding-bottom: 4vh !important;
+        box-sizing: border-box;
     }
     #eventModal form {
         margin: auto;
         box-shadow: 0 8px 32px 0 rgba(60,60,100,0.10);
         border-radius: 1.25rem;
         background: rgba(255,255,255,0.97);
-        max-height: 90vh;
+        max-height: 88vh;
         overflow-y: auto;
-    }
-    #eventModal {
-        align-items: flex-start !important;
-        padding-top: 2vh;
+        width: 95vw !important;
+        min-width: 0 !important;
     }
     #eventModal form {
         margin-top: 0;
