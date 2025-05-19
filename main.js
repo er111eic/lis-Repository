@@ -389,7 +389,7 @@ function editEvent() {
     showToast('無法編輯：未選擇活動', 'error');
     return;
   }
-   // 取得正確的活動物件
+  // 取得正確的活動物件
   let ev = null;
   // 先嘗試用 currentEventDate
   if (events[currentEventDate]) {
@@ -398,10 +398,12 @@ function editEvent() {
   // 若找不到，再全域搜尋一次（避免日期同步問題）
   if (!ev) {
     for (const date in events) {
-      ev = events[date].find(e => e && e.id === selectedEventId);
-      if (ev) {
-        currentEventDate = date;
-        break;
+      if (events[date]) {
+        ev = events[date].find(e => e && e.id === selectedEventId);
+        if (ev) {
+          currentEventDate = date;
+          break;
+        }
       }
     }
   }
@@ -423,7 +425,8 @@ function editEvent() {
   $('#eventModalTitle').text('編輯活動');
   $('#eventModal').removeClass('hidden');
   $('#viewEventModal').addClass('hidden');
-  showEventFormStep(1);
+  // 讓儲存按鈕永遠顯示
+  $('#saveEvent').removeClass('hidden');
 }
 
 function viewEvent(eventId, dateStr) {
@@ -567,7 +570,7 @@ $(function() {
       showToast('無法編輯：未選擇活動', 'error');
       return;
     }
-     // 取得正確的活動物件
+    // 取得正確的活動物件
     let ev = null;
     // 先嘗試用 currentEventDate
     if (events[currentEventDate]) {
@@ -576,10 +579,12 @@ $(function() {
     // 若找不到，再全域搜尋一次（避免日期同步問題）
     if (!ev) {
       for (const date in events) {
-        ev = events[date].find(e => e && e.id === selectedEventId);
-        if (ev) {
-          currentEventDate = date;
-          break;
+        if (events[date]) {
+          ev = events[date].find(e => e && e.id === selectedEventId);
+          if (ev) {
+            currentEventDate = date;
+            break;
+          }
         }
       }
     }
@@ -601,6 +606,7 @@ $(function() {
     $('#eventModalTitle').text('編輯活動');
     $('#eventModal').removeClass('hidden');
     $('#viewEventModal').addClass('hidden');
-    showEventFormStep(1);
+    // 讓儲存按鈕永遠顯示
+    $('#saveEvent').removeClass('hidden');
   };
 });
