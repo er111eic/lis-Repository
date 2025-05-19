@@ -1,3 +1,16 @@
+// ====== 農曆換算（簡易版，僅供日曆顯示） ======
+// 參考自台灣常用農曆演算法，僅供顯示用途
+function getLunarDateString(date) {
+  // 這裡用現成農曆對照表或簡易演算法，為簡化直接用 JS 內建 Intl API（部分瀏覽器支援）
+  // 若不支援則顯示"--"
+  try {
+    const lunar = new Intl.DateTimeFormat('zh-TW-u-ca-chinese', { year: 'numeric', month: 'numeric', day: 'numeric' }).format(date);
+    // lunar 例： '二月初一'
+    return lunar.replace(/\s/g, '');
+  } catch (e) {
+    return '--';
+  }
+}
 // 預設隱藏 eventModal，避免一進入就顯示
 $(document).ready(function(){
   $('#eventModal').addClass('hidden');
@@ -136,8 +149,11 @@ function renderCalendar() {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     // 判斷是否為今天
     const isToday = (new Date().getFullYear() === year && new Date().getMonth() === month && new Date().getDate() === day);
+    // 取得農曆日期
+    const lunarStr = getLunarDateString(new Date(year, month, day));
     let html = `<div class='calendar-day bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
-    html += `<div class='text-right font-semibold mb-1${isToday ? ' today-date' : ''}'>${day}</div><div class='events-container'>`;
+    html += `<div class='text-right font-semibold mb-1${isToday ? ' today-date' : ''}'>${day}` +
+      `<span class="lunar-date ml-1">${lunarStr}</span></div><div class='events-container'>`;
     if(events[dateStr]) for(const ev of events[dateStr]) {
       if(!ev||!ev.id) continue;
       const venue = (ev.venues||[])[0] || '';

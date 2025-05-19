@@ -1,3 +1,13 @@
+/* 農曆日期樣式 */
+.lunar-date {
+  font-size: 0.85em;
+  color: #888;
+  opacity: 0.45;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', Arial, sans-serif;
+  margin-left: 0.3em;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
 body {
     font-family: 'San Francisco', 'PingFang TC', 'Microsoft JhengHei', 'Helvetica Neue', Arial, sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
