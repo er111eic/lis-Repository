@@ -1,15 +1,25 @@
 // ====== 農曆換算（簡易版，僅供日曆顯示） ======
 // 參考自台灣常用農曆演算法，僅供顯示用途
 function getLunarDateString(date) {
-  // 只顯示國字月份和日，不顯示年份
+  // 國字農曆月份與日
+  const cnMonths = ['正','二','三','四','五','六','七','八','九','十','冬','臘'];
+  const cnDays = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+    '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+    '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
   try {
-    const lunar = new Intl.DateTimeFormat('zh-TW-u-ca-chinese', { year: 'numeric', month: 'numeric', day: 'numeric' }).format(date);
-    // lunar 例： '二月初一' 或 '二〇二五年二月初一'
-    // 移除年份，只取「X月X」
-    const match = lunar.match(/([正一二三四五六七八九十冬臘]+月[初十廿卅一二三四五六七八九十]+)/);
-    if (match) return match[0];
-    // 若格式不同，嘗試移除數字年份
-    return lunar.replace(/^[^月]*?(正|[一二三四五六七八九十冬臘])月/, '$1月').replace(/\s/g, '');
+    const lunar = new Intl.DateTimeFormat('zh-TW-u-ca-chinese', { year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(date);
+    let m = lunar.find(x => x.type==='month');
+    let d = lunar.find(x => x.type==='day');
+    let month = m ? m.value : '';
+    let day = d ? d.value : '';
+    // 取得國字月份
+    let mNum = parseInt(month.replace(/[^0-9]/g, ''));
+    if (isNaN(mNum)) mNum = 1;
+    let mStr = cnMonths[mNum-1]+'月';
+    // 取得國字日
+    let dNum = parseInt(day.replace(/[^0-9]/g, ''));
+    let dStr = cnDays[dNum-1] || day;
+    return mStr + dStr;
   } catch (e) {
     return '--';
   }
