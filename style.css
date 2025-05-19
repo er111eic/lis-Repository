@@ -113,6 +113,7 @@ body {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        touch-action: manipulation;
     }
     #eventModal .flex.justify-end {
         flex-direction: column;
@@ -120,6 +121,7 @@ body {
     }
     #eventModal button {
         width: 100%;
+        z-index: 2;
     }
     #eventModal .p-6 {
         padding: 0.5rem !important;
