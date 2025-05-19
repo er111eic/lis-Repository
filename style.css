@@ -331,3 +331,12 @@ button, .btn-primary, .btn-secondary {
 #saveEvent, #cancelEvent {
   min-width: 90px;
 }
+.today-date {
+  background: #ef4444 !important;
+  color: #fff !important;
+  border-radius: 0.5em;
+  display: inline-block;
+  min-width: 2em;
+  text-align: center;
+  padding: 0 0.3em;
+}

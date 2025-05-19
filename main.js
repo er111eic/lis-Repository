@@ -129,8 +129,10 @@ function renderCalendar() {
   for(let i=0;i<firstDayOfWeek;i++) $cal.append('<div class="calendar-day bg-gray-100 p-2 rounded"></div>');
   for(let day=1;day<=lastDay.getDate();day++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    // 判斷是否為今天
+    const isToday = (new Date().getFullYear() === year && new Date().getMonth() === month && new Date().getDate() === day);
     let html = `<div class='calendar-day bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
-    html += `<div class='text-right font-semibold mb-1'>${day}</div><div class='events-container'>`;
+    html += `<div class='text-right font-semibold mb-1${isToday ? ' today-date' : ''}'>${day}</div><div class='events-container'>`;
     if(events[dateStr]) for(const ev of events[dateStr]) {
       if(!ev||!ev.id) continue;
       const venue = (ev.venues||[])[0] || '';
