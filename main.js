@@ -278,6 +278,12 @@ $(function() {
       closeViewEventModal();
     }
   });
+  // 新增：讓點擊新增/編輯活動表單以外區域可關閉
+  $('#eventModal').off('mousedown').on('mousedown', function(e) {
+    if (e.target === this) {
+      closeEventModal();
+    }
+  });
   // 分步驟切換
   $('#nextStep').off('click').on('click', function() {
     if (validateStep(eventFormStep)) {
