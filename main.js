@@ -175,14 +175,15 @@ function renderCalendar() {
 let eventFormStep = 1;
 function showEventFormStep(step) {
   eventFormStep = step;
-  // 顯示/隱藏步驟區塊
-  $('#eventStep1').toggleClass('hidden', step !== 1);
-  $('#eventStep2').toggleClass('hidden', step !== 2);
-  $('#eventStep3').toggleClass('hidden', step !== 3);
-  // 按鈕顯示控制
-  $('#prevStep').toggleClass('hidden', step === 1);
-  $('#nextStep').toggleClass('hidden', step === 3);
-  $('#saveEvent').toggleClass('hidden', step !== 3);
+  // 顯示/隱藏步驟區塊（已廢棄，保留以防未來需要）
+  $('#eventStep1').removeClass('hidden');
+  $('#eventStep2').removeClass('hidden');
+  $('#eventStep3').removeClass('hidden');
+  // 儲存按鈕永遠顯示
+  $('#saveEvent').removeClass('hidden');
+  // 其他按鈕顯示控制（如有需要可保留）
+  $('#prevStep').addClass('hidden');
+  $('#nextStep').addClass('hidden');
 }
 // 分步驟驗證
 function validateStep(step) {
