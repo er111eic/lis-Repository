@@ -1,4 +1,20 @@
 @media (max-width: 600px) {
+  .calendar-day .flex.flex-row.items-center.justify-between {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 0.2em;
+  }
+  .calendar-day .calendar-weekday-label {
+    min-width: 2.5em;
+    text-align: right;
+    margin-left: 0.5em;
+    flex-shrink: 0;
+  }
+  .calendar-day .lunar-date {
+    margin-left: 0.5em;
+  }
+}
+@media (max-width: 600px) {
   .weekday-header-row {
     display: none !important;
   }

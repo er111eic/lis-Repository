@@ -173,15 +173,18 @@ function renderCalendar() {
     const lunarStr = getLunarDateString(new Date(year, month, day));
     const weekday = weekdayNames[new Date(year, month, day).getDay()];
     let html = `<div class='calendar-day bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
-    // 新增：手機下顯示禮拜幾
-    html += `<div class='calendar-weekday-label md:hidden text-xs text-gray-500 mb-1' style='display:none;'>${weekday}</div>`;
+    // 新版：同一列，禮拜幾靠右，日期農曆靠左
+    html += `<div class='flex flex-row items-center justify-between mb-1'>`;
+    html += `<div class='flex flex-row items-center'>`;
     if (isToday) {
-      html += `<div class='text-right font-semibold mb-1'>` +
-        `<span class='today-date'>${day}</span>` +
-        `<span class="lunar-date ml-1">${lunarStr}</span></div><div class='events-container'>`;
+      html += `<span class='today-date'>${day}</span>`;
     } else {
-      html += `<div class='text-right font-semibold mb-1'>${day}<span class="lunar-date ml-1">${lunarStr}</span></div><div class='events-container'>`;
+      html += `<span class='text-gray-900 font-semibold'>${day}</span>`;
     }
+    html += `<span class="lunar-date ml-1">${lunarStr}</span>`;
+    html += `</div>`;
+    html += `<span class='calendar-weekday-label md:hidden text-xs text-gray-500' style='display:none;'>${weekday}</span>`;
+    html += `</div><div class='events-container'>`;
     if(events[dateStr]) for(const ev of events[dateStr]) {
       if(!ev||!ev.id) continue;
       const hostType = ev.hostType || '';
