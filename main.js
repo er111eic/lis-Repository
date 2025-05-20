@@ -1,3 +1,13 @@
+// 取得禮拜幾字串
+function getWeekdayStr(dateStr) {
+  if (!dateStr) return '';
+  // 若有括號（已經有週幾），先去除
+  const pureDate = dateStr.split('（')[0];
+  const d = new Date(pureDate);
+  if (isNaN(d)) return '';
+  const weekdayNames = ['週日','週一','週二','週三','週四','週五','週六'];
+  return weekdayNames[d.getDay()];
+}
 // ====== 農曆換算（簡易版，僅供日曆顯示） ======
 // 參考自台灣常用農曆演算法，僅供顯示用途
 function getLunarDateString(date) {
