@@ -509,13 +509,20 @@ function viewEvent(eventId, dateStr) {
   if (!ev) return;
   selectedEventId = eventId;
   currentEventDate = dateStr;
+  // 日期加上禮拜幾
+  let dateWithWeekday = dateStr;
+  if (dateStr) {
+    const weekday = getWeekdayStr(dateStr);
+    dateWithWeekday = `${dateStr}（${weekday}）`;
+  }
   // 以左右排列方式顯示活動詳情
   const detailRows = [
     { label: '活動名稱', value: ev.title || '' },
     { label: '主辦單位', value: ev.hostType || '' },
-    { label: '日期', value: dateStr },
+    { label: '日期', value: dateWithWeekday },
     { label: '時間', value: `${ev.startTime || ''} - ${ev.endTime || ''}` },
-    { label: '場地', value: (ev.venues || []).map(v => v.split('-').pop()).join(', ') },
+    // 直接顯示完整地點名稱
+    { label: '場地', value: (ev.venues || []).join('、') },
     { label: '負責人', value: ev.organizer || '' },
     { label: '電話', value: ev.organizerPhone || '' }
   ];
