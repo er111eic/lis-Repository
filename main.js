@@ -164,13 +164,17 @@ function renderCalendar() {
   const firstDayOfWeek = firstDay.getDay();
   const $cal = $('#calendar').empty();
   for(let i=0;i<firstDayOfWeek;i++) $cal.append('<div class="calendar-day bg-gray-100 p-2 rounded"></div>');
+  const weekdayNames = ['週日','週一','週二','週三','週四','週五','週六'];
   for(let day=1;day<=lastDay.getDate();day++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     // 判斷是否為今天
     const isToday = (new Date().getFullYear() === year && new Date().getMonth() === month && new Date().getDate() === day);
     // 取得農曆日期
     const lunarStr = getLunarDateString(new Date(year, month, day));
+    const weekday = weekdayNames[new Date(year, month, day).getDay()];
     let html = `<div class='calendar-day bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
+    // 新增：手機下顯示禮拜幾
+    html += `<div class='calendar-weekday-label md:hidden text-xs text-gray-500 mb-1' style='display:none;'>${weekday}</div>`;
     if (isToday) {
       html += `<div class='text-right font-semibold mb-1'>` +
         `<span class='today-date'>${day}</span>` +
@@ -197,6 +201,10 @@ function renderCalendar() {
     }
     html += '</div></div>';
     $cal.append(html);
+  }
+  // 手機下顯示禮拜幾標籤
+  if (window.matchMedia && window.matchMedia('(max-width: 600px)').matches) {
+    $('.calendar-weekday-label').show();
   }
   // 滑鼠特效
   $('.calendar-day').off('mouseenter mouseleave').on('mouseenter',function(){
