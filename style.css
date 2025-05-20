@@ -143,12 +143,14 @@ body {
         background: rgba(255,255,255,0.97);
         max-height: 88vh;
         overflow-y: auto;
-        width: 98vw !important;
+        width: 96vw !important;
         min-width: 0 !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         touch-action: manipulation;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
     #eventModal .flex.justify-end {
         flex-direction: column;
