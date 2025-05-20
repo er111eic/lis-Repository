@@ -61,13 +61,28 @@ const venues = [
 // 場地選擇渲染
 function renderVenueSelector() {
   const $container = $('#venueSelector').empty();
+  // 取得目前表單的日期與時間
+  const dateStr = $('#eventDate').val();
+  const startTime = $('#eventStartTime').val();
+  const endTime = $('#eventEndTime').val();
   venues.forEach(venue => {
     const id = 'venue_' + venue.replace(/[^\w]/g, '');
+    let isBooked = false;
+    if (dateStr && startTime && endTime) {
+      isBooked = checkVenueBooked(dateStr, venue, startTime, endTime);
+    }
+    // 若已勾選但現在衝突，移除勾選
+    if (isBooked && selectedVenues.includes(venue)) {
+      selectedVenues = selectedVenues.filter(x => x !== venue);
+    }
     const checked = selectedVenues.includes(venue) ? 'checked' : '';
+    const disabled = isBooked ? 'disabled' : '';
+    const bookedClass = isBooked ? 'venue-booked text-gray-400 line-through' : '';
     $container.append(`
-      <label class="flex items-center mb-1">
-        <input type="checkbox" class="venue-checkbox mr-2" value="${venue}" id="${id}" ${checked}>
+      <label class="flex items-center mb-1 ${bookedClass}">
+        <input type="checkbox" class="venue-checkbox mr-2" value="${venue}" id="${id}" ${checked} ${disabled}>
         <span>${venue}</span>
+        ${isBooked ? '<span class=\"ml-2 text-xs text-red-400\">已被預訂</span>' : ''}
       </label>
     `);
   });
@@ -580,7 +595,11 @@ function validateEventForm() {
 $(function() {
   $('#eventTitle, #eventOrganizer, #eventOrganizerPhone').on('input', validateEventForm);
   $('input[name="eventHostType"]').on('change', validateEventForm);
-  $('#eventStartTime, #eventEndTime').on('change', validateEventForm);
+  // 時間欄位變動時，重新渲染場地選擇（即時劃掉已被預訂的教室）
+  $('#eventStartTime, #eventEndTime').on('change', function() {
+    renderVenueSelector();
+    validateEventForm();
+  });
   $(document).on('change', '.venue-checkbox', validateEventForm);
 
   // 攔截表單送出
