@@ -42,13 +42,13 @@ window.timeToMinutes = timeToMinutes;
 
 // 正式版 Firebase 設定
 const firebaseConfig = {
-    apiKey: "AIzaSyBO7cE71a1qqQGcYkGJKliQGbzI71N-DZI",
-    authDomain: "xingdexangdeclassroom.firebaseapp.com",
-    projectId: "xingdexangdeclassroom",
-    storageBucket: "xingdexangdeclassroom.firebasestorage.app",
-    messagingSenderId: "999253388381",
-    appId: "1:999253388381:web:eca9c187e2040a3a5e31b4",
-    measurementId: "G-ED3BQ1KE4H"
+  apiKey: "AIzaSyBO7cE71a1qqQGcYkGJKliQGbzI71N-DZI",
+  authDomain: "xingdexangdeclassroom.firebaseapp.com",
+  projectId: "xingdexangdeclassroom",
+  storageBucket: "xingdexangdeclassroom.firebasestorage.app",
+  messagingSenderId: "999253388381",
+  appId: "1:999253388381:web:eca9c187e2040a3a5e31b4",
+  measurementId: "G-ED3BQ1KE4H"
 };
 // 初始化 Firebase
 firebase.initializeApp(firebaseConfig);
