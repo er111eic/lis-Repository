@@ -40,41 +40,39 @@ function timeToMinutes(timeStr) {
 }
 window.timeToMinutes = timeToMinutes;
 
-// Firebase 設定
+// 正式版 Firebase 設定
 const firebaseConfig = {
-  apiKey: "999253388381",
-  authDomain: "xingdexangdeclassroom.firebaseapp.com",
-  projectId: "xingdexangdeclassroom",
+    apiKey: "AIzaSyBO7cE71a1qqQGcYkGJKliQGbzI71N-DZI",
+    authDomain: "xingdexangdeclassroom.firebaseapp.com",
+    projectId: "xingdexangdeclassroom",
+    storageBucket: "xingdexangdeclassroom.firebasestorage.app",
+    messagingSenderId: "999253388381",
+    appId: "1:999253388381:web:eca9c187e2040a3a5e31b4",
+    measurementId: "G-ED3BQ1KE4H"
 };
 // 初始化 Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 引入 Firebase Auth SDK
-// <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
-// 初始化 Firebase（已在 index.html 設定）
-// const firebaseConfig = { ... };
-// firebase.initializeApp(firebaseConfig);
-
+// Google 登入功能
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 
 function googleSignIn() {
   auth.signInWithPopup(provider)
     .then((result) => {
-      // 登入成功
       const user = result.user;
       alert('登入成功：' + user.displayName);
-      // 你可以在這裡做後續處理
     })
     .catch((error) => {
       alert('登入失敗：' + error.message);
     });
 }
 
-// 綁定按鈕
-document.getElementById('googleSignInBtn').addEventListener('click', googleSignIn);
+// 綁定 Google 登入按鈕
+$(document).ready(function() {
+  $('#googleSignInBtn').on('click', googleSignIn);
+});
 
 // ========== 事件資料載入/儲存 ==========
 // 場地顏色已不再使用，僅用界別顏色
