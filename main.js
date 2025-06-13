@@ -41,8 +41,9 @@ function timeToMinutes(timeStr) {
 window.timeToMinutes = timeToMinutes;
 
 // 正式版 Firebase 設定
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBO7cE71a1qqQGcYkGJKliQGbzI71N-DZI",
   authDomain: "xingdexangdeclassroom.firebaseapp.com",
