@@ -133,8 +133,10 @@ function closeEventModal() {
 
 // ========== 雲端同步（Firestore） ==========
 async function loadEvents() {
+  if (!window.db) return;
   try {
-    const snapshot = await db.collection('events').get();
+    const { collection, getDocs } = window.firestoreFns;
+    const snapshot = await getDocs(collection(window.db, 'events'));
     events = {};
     snapshot.forEach(doc => {
       const data = doc.data();
@@ -146,14 +148,18 @@ async function loadEvents() {
   }
 }
 async function saveEventToCloud(dateStr, eventObj, isEdit = false) {
+  if (!window.db) return;
+  const { collection, doc, setDoc, addDoc } = window.firestoreFns;
   if (isEdit && eventObj.id) {
-    await db.collection('events').doc(eventObj.id).set({ ...eventObj, date: dateStr });
+    await setDoc(doc(window.db, 'events', eventObj.id), { ...eventObj, date: dateStr });
   } else {
-    await db.collection('events').add({ ...eventObj, date: dateStr });
+    await addDoc(collection(window.db, 'events'), { ...eventObj, date: dateStr });
   }
 }
 async function deleteEventFromCloud(eventId) {
-  if (eventId) await db.collection('events').doc(eventId).delete();
+  if (!window.db) return;
+  const { doc, deleteDoc } = window.firestoreFns;
+  if (eventId) await deleteDoc(doc(window.db, 'events', eventId));
 }
 
 function renderCalendar() {

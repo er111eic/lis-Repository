@@ -195,7 +195,7 @@
     <!-- 新版 Firebase 模組化載入，放在 body 結尾 -->
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 
@@ -215,6 +215,10 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+
+    // 掛到 window 讓 main.js 可用新版 Firestore API
+    window.db = db;
+    window.firestoreFns = { collection, getDocs, doc, setDoc, addDoc, deleteDoc };
 
     // Google 登入功能
     document.getElementById('googleSignInBtn').addEventListener('click', async () => {
