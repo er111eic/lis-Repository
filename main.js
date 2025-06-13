@@ -41,6 +41,8 @@ function timeToMinutes(timeStr) {
 window.timeToMinutes = timeToMinutes;
 
 // 正式版 Firebase 設定
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 const firebaseConfig = {
   apiKey: "AIzaSyBO7cE71a1qqQGcYkGJKliQGbzI71N-DZI",
   authDomain: "xingdexangdeclassroom.firebaseapp.com",
@@ -51,8 +53,8 @@ const firebaseConfig = {
   measurementId: "G-ED3BQ1KE4H"
 };
 // 初始化 Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // Google 登入功能
 const auth = firebase.auth();
