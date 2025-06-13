@@ -44,6 +44,7 @@
     </header>
     <main>
         <section class="container mx-auto px-4 pt-2 pb-8 max-w-6xl">
+            <div id="userInfo" class="mb-4 hidden"></div>
             <button id="googleSignInBtn" class="btn-primary mb-4">使用 Google 登入</button>
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <div class="mb-4">
@@ -51,7 +52,7 @@
                     <span class="mr-2" style="font-size:1.2em;">📌</span>使用需知
                   </div>
                   <div class="text-gray-700 text-sm leading-relaxed">
-                    本系統供杏德、晑德空間借用登記使用，選擇時段後會顯示該時段空間有無衝突。資料送出前請再次確認負責人資訊無誤。
+                    登入後重新整理網頁，即可讀寫資料。本系統供杏德、晑德空間借用登記使用，選擇時段後會顯示該時段空間有無衝突。資料送出前請再次確認負責人資訊無誤。
                   </div>
                 </div>
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -196,7 +197,7 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, setDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 
     const firebaseConfig = {
@@ -216,16 +217,34 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // 掛到 window 讓 main.js 可用新版 Firestore API
     window.db = db;
     window.firestoreFns = { collection, getDocs, doc, setDoc, addDoc, deleteDoc };
 
-    // Google 登入功能
-    document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+    // 顯示登入狀態
+    const userInfoDiv = document.getElementById('userInfo');
+    const signInBtn = document.getElementById('googleSignInBtn');
+
+    function showUser(user) {
+      if (user) {
+        userInfoDiv.textContent = `${user.displayName}（Google帳號）已登入`;
+        userInfoDiv.classList.remove('hidden');
+        signInBtn.classList.add('hidden');
+      } else {
+        userInfoDiv.textContent = '';
+        userInfoDiv.classList.add('hidden');
+        signInBtn.classList.remove('hidden');
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      showUser(user);
+    });
+
+    signInBtn.addEventListener('click', async () => {
       try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        alert('登入成功：' + user.displayName);
+        showUser(user);
       } catch (error) {
         alert('登入失敗：' + error.message);
       }
