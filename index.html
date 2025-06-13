@@ -7,9 +7,6 @@
     <title>杏德晑德空間借用系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script>
       // Firebase 設定
       // const firebaseConfig = {
@@ -195,5 +192,40 @@
     <div id="toast" class="toast"></div>
 
     <script src="main.js"></script>
+    <!-- 新版 Firebase 模組化載入，放在 body 結尾 -->
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBO7cE71a1qqQGcYkGJKliQGbzI71N-DZI",
+      authDomain: "xingdexangdeclassroom.firebaseapp.com",
+      projectId: "xingdexangdeclassroom",
+      storageBucket: "xingdexangdeclassroom.appspot.com",
+      messagingSenderId: "999253388381",
+      appId: "1:999253388381:web:eca9c187e2040a3a5e31b4",
+      measurementId: "G-ED3BQ1KE4H"
+    };
+
+    // 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Google 登入功能
+    document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        alert('登入成功：' + user.displayName);
+      } catch (error) {
+        alert('登入失敗：' + error.message);
+      }
+    });
+  </script>
 </body>
 </html>

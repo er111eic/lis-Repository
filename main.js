@@ -40,42 +40,7 @@ function timeToMinutes(timeStr) {
 }
 window.timeToMinutes = timeToMinutes;
 
-// 正式版 Firebase 設定
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBO7cE71a1qqQGcYkGJKliQGbzI71N-DZI",
-  authDomain: "xingdexangdeclassroom.firebaseapp.com",
-  projectId: "xingdexangdeclassroom",
-  storageBucket: "xingdexangdeclassroom.firebasestorage.app",
-  messagingSenderId: "999253388381",
-  appId: "1:999253388381:web:eca9c187e2040a3a5e31b4",
-  measurementId: "G-ED3BQ1KE4H"
-};
-// 初始化 Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// Google 登入功能
-const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
-
-function googleSignIn() {
-  auth.signInWithPopup(provider)
-    .then((result) => {
-      const user = result.user;
-      alert('登入成功：' + user.displayName);
-    })
-    .catch((error) => {
-      alert('登入失敗：' + error.message);
-    });
-}
-
-// 綁定 Google 登入按鈕
-$(document).ready(function() {
-  $('#googleSignInBtn').on('click', googleSignIn);
-});
+// 移除 firebase 初始化與 Google 登入相關程式，改由新版 <script type="module"> 處理
 
 // ========== 事件資料載入/儲存 ==========
 // 場地顏色已不再使用，僅用界別顏色
