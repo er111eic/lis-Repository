@@ -51,6 +51,7 @@ let events = {};
 let selectedEventId = null;
 let selectedVenue = null;
 let currentEventDate = null;
+let formValidationVisible = false;
 const venues = [
   "晑德-佛堂",
   "晑德-廚房",
@@ -77,11 +78,13 @@ function renderVenueSelector() {
     if (isBooked && selectedVenues.includes(venue)) {
       selectedVenues = selectedVenues.filter(x => x !== venue);
     }
-    const checked = selectedVenues.includes(venue) ? 'checked' : '';
+    const isSelected = selectedVenues.includes(venue);
+    const checked = isSelected ? 'checked' : '';
     const disabled = isBooked ? 'disabled' : '';
     const bookedClass = isBooked ? 'venue-booked text-gray-400 line-through' : '';
+    const selectedClass = isSelected ? 'venue-selected' : '';
     $container.append(`
-      <label class="flex items-center mb-1 ${bookedClass}">
+      <label class="venue-option flex items-center mb-1 ${bookedClass} ${selectedClass}">
         <input type="checkbox" class="venue-checkbox mr-2" value="${venue}" id="${id}" ${checked} ${disabled}>
         <span>${venue}</span>
         ${isBooked ? '<span class=\"ml-2 text-xs text-red-400\">已被預訂</span>' : ''}
@@ -96,7 +99,8 @@ function renderVenueSelector() {
     } else {
       selectedVenues = selectedVenues.filter(x => x !== v);
     }
-    validateEventForm && validateEventForm();
+    $(this).closest('.venue-option').toggleClass('venue-selected', $(this).is(':checked'));
+    if (formValidationVisible) validateEventForm && validateEventForm();
   });
 }
 // 檢查指定日期、場地、時間區間是否有重疊活動
@@ -171,7 +175,7 @@ function renderCalendar() {
   const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
   const firstDayOfWeek = firstDay.getDay();
   const $cal = $('#calendar').empty();
-  for(let i=0;i<firstDayOfWeek;i++) $cal.append('<div class="calendar-day bg-gray-100 p-2 rounded"></div>');
+  for(let i=0;i<firstDayOfWeek;i++) $cal.append('<div class="calendar-day calendar-day-empty bg-gray-100 p-2 rounded" aria-hidden="true"></div>');
   const weekdayNames = ['週日','週一','週二','週三','週四','週五','週六'];
   for(let day=1;day<=lastDay.getDate();day++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -218,15 +222,17 @@ function renderCalendar() {
     $('.calendar-weekday-label').show();
   }
   // 滑鼠特效
-  $('.calendar-day').off('mouseenter mouseleave').on('mouseenter',function(){
+  $('.calendar-day[data-date]').off('mouseenter mouseleave').on('mouseenter',function(){
     $(this).addClass('calendar-day-hover');
   }).on('mouseleave',function(){
     $(this).removeClass('calendar-day-hover');
   });
   // 允許點擊日曆空白區塊直接新增活動（已實作，強化 UX 提示）
-  $('.calendar-day').off('click').on('click',function(e){
+  $('.calendar-day[data-date]').off('click').on('click',function(e){
     if($(e.target).hasClass('event')) return;
-    openEventModal($(this).data('date'));
+    const date = $(this).data('date');
+    if (!date) return;
+    openEventModal(date);
   });
   $('.event').off('click').on('click',function(e){
     e.stopPropagation();
@@ -336,6 +342,7 @@ $(function() {
   });
   $('#saveEvent').off('click').on('click', function(e) {
     e.preventDefault();
+    formValidationVisible = true;
     if (!validateEventForm()) return;
     saveEvent();
   });
@@ -619,18 +626,25 @@ function validateEventForm() {
 
 // 綁定即時驗證
 $(function() {
-  $('#eventTitle, #eventOrganizer, #eventOrganizerPhone').on('input', validateEventForm);
-  $('input[name="eventHostType"]').on('change', validateEventForm);
+  $('#eventTitle, #eventOrganizer, #eventOrganizerPhone').on('input', function() {
+    if (formValidationVisible) validateEventForm();
+  });
+  $('input[name="eventHostType"]').on('change', function() {
+    if (formValidationVisible) validateEventForm();
+  });
   // 時間欄位變動時，重新渲染場地選擇（即時劃掉已被預訂的教室）
   $('#eventStartTime, #eventEndTime').on('change', function() {
     renderVenueSelector();
-    validateEventForm();
+    if (formValidationVisible) validateEventForm();
   });
-  $(document).on('change', '.venue-checkbox', validateEventForm);
+  $(document).on('change', '.venue-checkbox', function() {
+    if (formValidationVisible) validateEventForm();
+  });
 
   // 攔截表單送出
   $('#eventModal form').on('submit', async function(e) {
     e.preventDefault();
+    formValidationVisible = true;
     if (!validateEventForm()) return;
     await saveEvent();
   });
@@ -645,6 +659,7 @@ $(function() {
   window.openEventModal = function(dateStr, isEdit=false) {
     selectedEventId = null;
     currentEventDate = dateStr;
+    formValidationVisible = false;
     // 設定日期欄位
     $('#eventDate').val(dateStr || '');
     // 清空表單欄位
@@ -671,6 +686,7 @@ $(function() {
       showToast('無法編輯：未選擇活動', 'error');
       return;
     }
+    formValidationVisible = false;
     // 取得正確的活動物件
     let ev = null;
     // 先嘗試用 currentEventDate

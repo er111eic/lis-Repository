@@ -614,8 +614,16 @@ body {
   background: rgba(255, 253, 248, 0.92) !important;
   border: 1px solid var(--line) !important;
   border-radius: 8px !important;
+  cursor: pointer;
   min-height: 112px;
   padding: 0.75rem !important;
+}
+
+.calendar-day-empty {
+  background: rgba(246, 241, 233, 0.5) !important;
+  cursor: default;
+  opacity: 0.52;
+  pointer-events: none;
 }
 
 .calendar-day:nth-child(14n+1),
@@ -660,7 +668,7 @@ body {
   transform: translateY(-1px);
 }
 
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 textarea {
   background: #fffdf8 !important;
   border: 1px solid var(--line) !important;
@@ -669,7 +677,7 @@ textarea {
   outline: none;
 }
 
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus {
   border-color: var(--accent) !important;
   box-shadow: 0 0 0 3px rgba(143, 85, 71, 0.12);
@@ -696,6 +704,52 @@ textarea:focus {
   box-shadow: 0 24px 70px rgba(34, 32, 28, 0.18);
 }
 
+#eventModal form {
+  max-width: 640px;
+  padding: 1.55rem !important;
+}
+
+.form-section-title {
+  color: var(--ink) !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.85rem !important;
+}
+
+#eventModal hr {
+  border-color: var(--line);
+  margin: 1.25rem 0;
+}
+
+#eventModal form > .pt-2 {
+  padding-top: 0 !important;
+}
+
+#eventModal form .mb-2.flex {
+  margin-bottom: 0.8rem !important;
+}
+
+#eventModal label {
+  color: var(--muted) !important;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+#eventModal input {
+  min-height: 44px;
+}
+
+#eventModal #eventDate,
+#eventModal #eventTitle,
+#eventModal #eventOrganizer,
+#eventModal #eventOrganizerPhone {
+  max-width: none !important;
+}
+
+#eventModal .text-red-500 {
+  color: #b14d42 !important;
+}
+
 #venueSelector {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -706,6 +760,26 @@ textarea:focus {
   border-radius: 8px;
   min-height: 46px;
   padding: 0.65rem 0.7rem;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, box-shadow 0.18s;
+}
+
+#venueSelector label:hover {
+  background: #fffaf1;
+  border-color: #d8cbbc;
+}
+
+#venueSelector .venue-selected {
+  background: #f3e8df;
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  color: var(--accent-dark);
+}
+
+#venueSelector .venue-booked {
+  background: #f2eee7;
+  border-color: #ded6ca;
+  cursor: not-allowed;
+  opacity: 0.62;
 }
 
 .event-detail-content .font-semibold {
@@ -842,8 +916,27 @@ textarea:focus {
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
     max-height: 90vh;
-    padding: 1rem !important;
+    padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)) !important;
     width: 100vw !important;
+  }
+
+  #eventModal form::before {
+    background: #d8cbbc;
+    border-radius: 999px;
+    content: "";
+    display: block;
+    height: 4px;
+    margin: 0 auto 0.9rem;
+    width: 42px;
+  }
+
+  #eventModalTitle {
+    margin-bottom: 1rem !important;
+  }
+
+  .form-section-title {
+    font-size: 0.86rem !important;
+    margin-top: 0.2rem;
   }
 
   #eventModal form .mb-2.flex,
