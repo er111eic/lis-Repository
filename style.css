@@ -417,6 +417,7 @@ button, .btn-primary, .btn-secondary {
   --sage: #6f8574;
   --sky: #6d8fa7;
   --orange: #c9894b;
+  --tap-highlight: rgba(143, 85, 71, 0.14);
   --shadow-soft: 0 18px 45px rgba(62, 52, 39, 0.08);
 }
 
@@ -430,6 +431,7 @@ body {
     linear-gradient(180deg, #fbf7ef 0%, #f4eee5 100%);
   color: var(--ink);
   letter-spacing: 0;
+  -webkit-tap-highlight-color: var(--tap-highlight);
 }
 
 .app-header {
@@ -466,7 +468,7 @@ body {
 .app-note {
   background: #f8f3eb;
   border: 1px solid var(--line);
-  border-left: 4px solid var(--accent);
+  border-left: 3px solid var(--accent);
   border-radius: 8px;
   padding: 0.9rem 1rem;
 }
@@ -504,6 +506,7 @@ body {
   box-shadow: none;
   font-size: 0.98rem;
   letter-spacing: 0;
+  min-height: 44px;
 }
 
 .btn-primary {
@@ -620,9 +623,10 @@ body {
 }
 
 .calendar-day-empty {
-  background: rgba(246, 241, 233, 0.5) !important;
+  background: transparent !important;
+  border-color: transparent !important;
   cursor: default;
-  opacity: 0.52;
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -638,7 +642,7 @@ body {
 
 .calendar-day-hover {
   background: #fffaf1 !important;
-  box-shadow: inset 0 0 0 1px var(--accent), 0 14px 28px rgba(62, 52, 39, 0.1);
+  box-shadow: inset 0 0 0 1px var(--accent), 0 10px 24px rgba(62, 52, 39, 0.08);
 }
 
 .today-date {
@@ -709,6 +713,12 @@ textarea:focus {
   padding: 1.55rem !important;
 }
 
+#eventModal .flex.justify-center.space-x-4.mt-6 {
+  border-top: 1px solid var(--line);
+  margin-top: 1.25rem !important;
+  padding-top: 1rem;
+}
+
 .form-section-title {
   color: var(--ink) !important;
   font-size: 0.95rem !important;
@@ -761,6 +771,10 @@ textarea:focus {
   min-height: 46px;
   padding: 0.65rem 0.7rem;
   transition: background 0.18s, border-color 0.18s, color 0.18s, box-shadow 0.18s;
+}
+
+#venueSelector .venue-checkbox {
+  flex: 0 0 auto;
 }
 
 #venueSelector label:hover {
@@ -825,9 +839,14 @@ textarea:focus {
     background: linear-gradient(180deg, #fbf7ef 0%, #f2ece2 100%);
   }
 
+  main .container {
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+
   .app-header {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
   }
 
   .app-kicker {
@@ -845,6 +864,11 @@ textarea:focus {
 
   .app-note {
     padding: 0.85rem;
+  }
+
+  .app-note .text-sm {
+    font-size: 0.88rem !important;
+    line-height: 1.75 !important;
   }
 
   .flex.flex-col.md\:flex-row.justify-between.items-center.mb-6 {
@@ -881,11 +905,15 @@ textarea:focus {
     gap: 0.55rem !important;
   }
 
+  .calendar-day-empty {
+    display: none !important;
+  }
+
   .calendar-day {
     border-radius: 8px !important;
-    box-shadow: 0 8px 22px rgba(62, 52, 39, 0.06);
-    min-height: 76px;
-    padding: 0.8rem !important;
+    box-shadow: none;
+    min-height: 66px;
+    padding: 0.75rem 0.85rem !important;
   }
 
   .calendar-day .flex.flex-row.items-center.justify-between {
@@ -898,7 +926,7 @@ textarea:focus {
   }
 
   .calendar-day .events-container {
-    margin-top: 0.55rem;
+    margin-top: 0.45rem;
   }
 
   .calendar-day .event {
@@ -918,6 +946,17 @@ textarea:focus {
     max-height: 90vh;
     padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)) !important;
     width: 100vw !important;
+  }
+
+  #eventModal .flex.justify-center.space-x-4.mt-6 {
+    background: rgba(255, 253, 248, 0.94);
+    bottom: 0;
+    gap: 0.75rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-bottom: calc(-1rem - env(safe-area-inset-bottom));
+    padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom));
+    position: sticky;
   }
 
   #eventModal form::before {
@@ -946,17 +985,35 @@ textarea:focus {
     gap: 0.45rem !important;
   }
 
-  #eventModal input {
+  #eventModal .host-type-row {
+    align-items: flex-start !important;
+  }
+
+  #eventModal label.inline-flex {
+    align-items: center !important;
+    flex-direction: row !important;
+    gap: 0.45rem;
+    min-height: 36px;
+  }
+
+  #eventModal input:not([type="checkbox"]):not([type="radio"]) {
     max-width: none !important;
     width: 100% !important;
   }
 
-  #eventModal .mb-2.flex.items-center {
+  #eventModal .host-radio,
+  #eventModal .venue-checkbox {
+    height: 20px;
+    margin-right: 0.45rem !important;
+    width: 20px;
+  }
+
+  #eventModal .time-field-row {
     display: grid !important;
     grid-template-columns: 1fr;
   }
 
-  #eventModal .mb-2.flex.items-center span.mx-2 {
+  #eventModal .time-field-row span.mx-2 {
     display: none;
   }
 
