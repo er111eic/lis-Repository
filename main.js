@@ -212,6 +212,8 @@ async function deleteEventFromCloud(eventId) {
 }
 
 function renderCalendar() {
+  const $calendarRoot = $('#calendar');
+  $calendarRoot.addClass('is-updating');
   const hostTypeBorder = {
     '學界': '#2196f3', // 藍色
     '社會界': '#ff9800' // 橘色
@@ -219,7 +221,7 @@ function renderCalendar() {
   const year = currentDate.getFullYear(), month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
   const firstDayOfWeek = firstDay.getDay();
-  const $cal = $('#calendar').empty();
+  const $cal = $calendarRoot.empty();
   for(let i=0;i<firstDayOfWeek;i++) $cal.append('<div class="calendar-day calendar-day-empty bg-gray-100 p-2 rounded" aria-hidden="true"></div>');
   const weekdayNames = ['週日','週一','週二','週三','週四','週五','週六'];
   for(let day=1;day<=lastDay.getDate();day++) {
@@ -294,6 +296,9 @@ function renderCalendar() {
     $(this).find('.event-organizer-tooltip').hide();
   });
   renderTodayOverview();
+  window.requestAnimationFrame(() => {
+    $calendarRoot.removeClass('is-updating');
+  });
 }
 
 let eventFormStep = 1;
