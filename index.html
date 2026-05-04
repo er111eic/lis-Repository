@@ -39,17 +39,18 @@
     </style>
 </head>
 <body>
-    <header class="container mx-auto px-4 pt-8 pb-4 max-w-6xl">
-        <h1 class="text-3xl font-extrabold text-indigo-800 mb-2 md:mb-0 modal-title tracking-tight drop-shadow-sm" style="letter-spacing:0.04em;">杏德晑德空間借用系統</h1>
+    <header class="app-header container mx-auto px-4 pt-8 pb-4 max-w-6xl">
+        <p class="app-kicker">Space Reservation</p>
+        <h1 class="text-3xl font-extrabold text-indigo-800 mb-2 md:mb-0 modal-title tracking-tight drop-shadow-sm">杏德晑德空間借用系統</h1>
     </header>
     <main>
         <section class="container mx-auto px-4 pt-2 pb-8 max-w-6xl">
             <div id="userInfo" class="mb-4 hidden"></div>
             <button id="googleSignInBtn" class="btn-primary mb-4">使用 Google 登入</button>
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="mb-4">
+            <div class="app-surface bg-white rounded-lg shadow-lg p-6">
+                <div class="app-note mb-4">
                   <div class="flex items-center text-indigo-700 text-base font-semibold mb-1">
-                    <span class="mr-2" style="font-size:1.2em;">📌</span>使用需知
+                    使用需知
                   </div>
                   <div class="text-gray-700 text-sm leading-relaxed">
                     登入後重新整理網頁，即可讀寫資料。本系統供杏德、晑德空間借用登記使用，選擇時段後會顯示該時段空間有無衝突。資料送出前請再次確認負責人資訊無誤。
@@ -63,7 +64,7 @@
                     </div>
                 </div>
 
-                <div class="mb-6">
+                <div class="legend-row mb-6">
                   <div class="flex flex-row gap-6 mb-2">
                     <div class="flex items-center">
                       <div class="w-5 h-5 rounded mr-2" style="background:rgba(33,150,243,0.18);"></div>
@@ -164,7 +165,7 @@
     <!-- 查看活動詳情 -->
     <div id="viewEventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-2" style="backdrop-filter: blur(12px); border: 1.5px solid #e5e7eb;">
-            <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2"><span class="icon" style="color:#6366f1;">📋</span>活動詳情</h3>
+            <h3 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">活動詳情</h3>
             <div class="event-detail-content mb-6"></div>
             <div class="flex flex-row justify-center gap-3 mt-4">
                 <button id="editEvent" class="btn-apple-edit flex-1 min-w-0">編輯</button>

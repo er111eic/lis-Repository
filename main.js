@@ -311,10 +311,10 @@ $(function() {
 
   // 儲存/取消/編輯/刪除/關閉按鈕圖示與樣式
   $('#saveEvent').addClass('btn-primary btn-icon').html('<span class="icon">＋</span>儲存');
-  $('#cancelEvent').addClass('btn-secondary btn-icon').html('<span class="icon">✖️</span>取消');
-  $('#editEvent').addClass('btn-primary btn-icon').html('<span class="icon">✏️</span>編輯');
-  $('#deleteEvent').addClass('btn-secondary btn-icon').html('<span class="icon">🗑️</span>刪除');
-  $('#closeViewEvent').addClass('btn-secondary btn-icon').html('<span class="icon">✖️</span>關閉');
+  $('#cancelEvent').addClass('btn-secondary btn-icon').html('<span class="icon">×</span>取消');
+  $('#editEvent').addClass('btn-primary btn-icon').html('<span class="icon">編</span>編輯');
+  $('#deleteEvent').addClass('btn-secondary btn-icon').html('<span class="icon">刪</span>刪除');
+  $('#closeViewEvent').addClass('btn-secondary btn-icon').html('<span class="icon">×</span>關閉');
 
   // 強化標題
   $('#eventModalTitle, .text-3xl').addClass('modal-title');
