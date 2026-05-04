@@ -56,13 +56,16 @@
                     登入後系統會自動同步資料。選擇日期、時間與空間後，系統會協助檢查時段衝突。
                   </div>
                 </div>
-                <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-                    <div class="flex items-center space-x-4">
-                        <button id="prevMonth" class="btn-primary btn-icon"><span class="icon">&#8592;</span></button>
+                <div class="app-toolbar flex flex-col md:flex-row justify-between items-center mb-6">
+                    <div class="month-control flex items-center space-x-4">
+                        <button id="prevMonth" class="btn-primary btn-icon" aria-label="上一個月"><span class="icon">&#8592;</span></button>
                         <h2 id="currentMonthYear" class="text-xl font-semibold text-gray-700 w-40 text-center"></h2>
-                        <button id="nextMonth" class="btn-primary btn-icon"><span class="icon">&#8594;</span></button>
+                        <button id="nextMonth" class="btn-primary btn-icon" aria-label="下一個月"><span class="icon">&#8594;</span></button>
                     </div>
+                    <button id="quickAddEvent" class="btn-primary btn-icon quick-add-btn" type="button"><span class="icon">＋</span>新增借用</button>
                 </div>
+
+                <section id="todayOverview" class="today-overview mb-6" aria-live="polite"></section>
 
                 <div class="legend-row mb-6">
                   <div class="flex flex-row gap-6 mb-2">

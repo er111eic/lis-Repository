@@ -61,6 +61,51 @@ const venues = [
   "杏德-坤伙"
 ];
 
+function formatDateStr(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+
+function getEventSummary(ev) {
+  const time = ev.startTime && ev.endTime ? `${ev.startTime}-${ev.endTime}` : '未設定時間';
+  const venuesText = Array.isArray(ev.venues) && ev.venues.length ? ev.venues.join('、') : '未設定空間';
+  const hostType = ev.hostType ? `｜${ev.hostType}` : '';
+  return `${time} ${venuesText}${hostType}`;
+}
+
+function renderTodayOverview() {
+  const todayStr = formatDateStr(new Date());
+  const todayEvents = Array.isArray(events[todayStr]) ? events[todayStr].filter(ev => ev && ev.id) : [];
+  const weekday = getWeekdayStr(todayStr);
+  let html = `
+    <div class="today-overview-header">
+      <div>
+        <div class="today-overview-eyebrow">今日</div>
+        <h3>${todayStr}（${weekday}）</h3>
+      </div>
+      <button id="todayAddEvent" class="btn-secondary btn-icon" type="button"><span class="icon">＋</span>今日借用</button>
+    </div>
+  `;
+  if (!todayEvents.length) {
+    html += `<div class="today-empty">今天尚無借用。可以直接新增一筆空間借用。</div>`;
+  } else {
+    html += '<div class="today-event-list">';
+    todayEvents.forEach(ev => {
+      html += `
+        <button class="today-event-item" type="button" data-event-id="${ev.id}" data-date="${todayStr}">
+          <span class="today-event-title">${ev.title || '未命名活動'}</span>
+          <span class="today-event-meta">${getEventSummary(ev)}</span>
+        </button>
+      `;
+    });
+    html += '</div>';
+  }
+  $('#todayOverview').html(html);
+  $('#todayAddEvent').off('click').on('click', () => openEventModal(todayStr));
+  $('.today-event-item').off('click').on('click', function() {
+    viewEvent($(this).data('event-id'), $(this).data('date'));
+  });
+}
+
 // 場地選擇渲染
 function renderVenueSelector() {
   const $container = $('#venueSelector').empty();
@@ -212,8 +257,12 @@ function renderCalendar() {
         data-organizer='${ev.organizer||''}'
         title='${ev.title}\n${ev.venues ? ev.venues.join(", ") : ''}\n${ev.startTime}-${ev.endTime}\n${ev.organizer?('負責人:'+ev.organizer):''}'>
         <span style='font-weight:bold;'>${ev.title}</span>
+        <span class='event-mobile-meta'>${getEventSummary(ev)}</span>
         <span class='event-organizer-tooltip' style='display:none;position:absolute;left:0;right:0;bottom:-1.8em;background:rgba(0,0,0,0.8);color:#fff;font-size:12px;padding:2px 6px;border-radius:4px;z-index:10;text-align:center;'>${ev.organizer||''}</span>
       </div>`;
+    }
+    if (!hasEvents) {
+      html += `<div class="calendar-empty-state">尚無借用</div>`;
     }
     html += '</div></div>';
     $cal.append(html);
@@ -244,6 +293,7 @@ function renderCalendar() {
   }).on('mouseleave',function(){
     $(this).find('.event-organizer-tooltip').hide();
   });
+  renderTodayOverview();
 }
 
 let eventFormStep = 1;
@@ -337,6 +387,9 @@ $(function() {
     updateMonthYearDisplay();
     renderCalendar();
   });
+  $('#quickAddEvent').off('click').on('click', function() {
+    openEventModal(formatDateStr(new Date()));
+  });
   $('#cancelEvent').off('click').on('click', function(e) {
     e.preventDefault();
     closeEventModal();
@@ -378,6 +431,7 @@ function updateMonthYearDisplay() {
   const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
   $('#currentMonthYear').text(`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`);
 }
+window.updateMonthYearDisplay = updateMonthYearDisplay;
 async function saveEvent() {
   const dateStr = document.getElementById('eventDate').value;
   const title = document.getElementById('eventTitle').value.trim();
@@ -441,6 +495,9 @@ async function saveEvent() {
   closeEventModal();
   renderCalendar();
 }
+
+window.loadEvents = loadEvents;
+window.renderCalendar = renderCalendar;
 
 async function deleteEvent() {
   if (!currentEventDate || !selectedEventId) {
