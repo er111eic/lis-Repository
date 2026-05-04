@@ -184,7 +184,8 @@ function renderCalendar() {
     // 取得農曆日期
     const lunarStr = getLunarDateString(new Date(year, month, day));
     const weekday = weekdayNames[new Date(year, month, day).getDay()];
-    let html = `<div class='calendar-day bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
+    const hasEvents = Array.isArray(events[dateStr]) && events[dateStr].some(ev => ev && ev.id);
+    let html = `<div class='calendar-day ${hasEvents ? 'has-events' : ''} bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
     // 新版：同一列，禮拜幾靠右，日期農曆靠左
     html += `<div class='flex flex-row items-center justify-between mb-1'>`;
     html += `<div class='flex flex-row items-center'>`;
