@@ -1346,7 +1346,6 @@ textarea:focus {
 }
 
 .toast {
-  animation: app-toast-in var(--motion-base) var(--motion-ease) both;
   background: rgba(29, 29, 31, 0.92);
   backdrop-filter: blur(16px);
 }
@@ -1357,6 +1356,21 @@ textarea:focus {
 
 .toast.error {
   background-color: rgba(255, 59, 48, 0.94);
+}
+
+.toast:not(.show) {
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.toast.show {
+  animation: app-toast-in var(--motion-base) var(--motion-ease) both;
+  min-width: max-content;
+  padding: 10px 20px;
+  visibility: visible;
 }
 
 @media (max-width: 600px) {
