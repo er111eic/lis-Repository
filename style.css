@@ -520,6 +520,44 @@ body {
   display: none;
 }
 
+#googleSignInBtn,
+#userInfo {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  top: max(14px, env(safe-area-inset-top));
+  z-index: 40;
+}
+
+#googleSignInBtn {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(60, 60, 67, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  color: var(--accent);
+  font-size: 0.86rem;
+  min-height: 34px;
+  min-width: 0;
+  padding: 0.38rem 0.75rem;
+}
+
+#googleSignInBtn:hover {
+  background: #fff;
+  border-color: rgba(0, 122, 255, 0.28);
+  color: var(--accent-dark);
+}
+
+#userInfo {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(60, 60, 67, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  color: var(--muted);
+  font-size: 0.8rem;
+  max-width: min(280px, calc(100vw - 32px));
+  overflow: hidden;
+  padding: 0.42rem 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .btn-primary,
 .btn-secondary,
 .btn-apple-edit,
@@ -1725,5 +1763,23 @@ textarea:focus {
     border-bottom-right-radius: 0 !important;
     max-height: calc(100dvh - 10px - env(safe-area-inset-top)) !important;
     width: 100vw !important;
+  }
+}
+
+@media (max-width: 600px) {
+  #googleSignInBtn {
+    font-size: 0.78rem;
+    min-height: 32px;
+    padding: 0.32rem 0.65rem;
+    right: max(10px, env(safe-area-inset-right));
+    top: max(10px, env(safe-area-inset-top));
+    width: auto !important;
+  }
+
+  #userInfo {
+    font-size: 0.74rem;
+    max-width: min(210px, calc(100vw - 20px));
+    right: max(10px, env(safe-area-inset-right));
+    top: max(10px, env(safe-area-inset-top));
   }
 }
