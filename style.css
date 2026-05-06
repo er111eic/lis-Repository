@@ -36,6 +36,7 @@
     transform: none;
   }
 }
+
 @media (max-width: 600px) {
   .weekday-header-row {
     display: none !important;
@@ -60,6 +61,14 @@ body {
     background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
     color: #222;
     min-height: 100vh;
+}
+
+body.sheet-open {
+    left: 0;
+    overflow: hidden;
+    position: fixed;
+    right: 0;
+    width: 100%;
 }
 .calendar-day {
     min-height: 100px;
@@ -517,6 +526,44 @@ body {
 
 #userInfo.hidden {
   display: none;
+}
+
+#googleSignInBtn,
+#userInfo {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  top: max(14px, env(safe-area-inset-top));
+  z-index: 40;
+}
+
+#googleSignInBtn {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(60, 60, 67, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  color: var(--accent);
+  font-size: 0.86rem;
+  min-height: 34px;
+  min-width: 0;
+  padding: 0.38rem 0.75rem;
+}
+
+#googleSignInBtn:hover {
+  background: #fff;
+  border-color: rgba(0, 122, 255, 0.28);
+  color: var(--accent-dark);
+}
+
+#userInfo {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(60, 60, 67, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  color: var(--muted);
+  font-size: 0.8rem;
+  max-width: min(280px, calc(100vw - 32px));
+  overflow: hidden;
+  padding: 0.42rem 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-primary,
@@ -1345,7 +1392,6 @@ textarea:focus {
 }
 
 .toast {
-  animation: app-toast-in var(--motion-base) var(--motion-ease) both;
   background: rgba(29, 29, 31, 0.92);
   backdrop-filter: blur(16px);
 }
@@ -1356,6 +1402,21 @@ textarea:focus {
 
 .toast.error {
   background-color: rgba(255, 59, 48, 0.94);
+}
+
+.toast:not(.show) {
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.toast.show {
+  animation: app-toast-in var(--motion-base) var(--motion-ease) both;
+  min-width: max-content;
+  padding: 10px 20px;
+  visibility: visible;
 }
 
 @media (max-width: 600px) {
@@ -1659,5 +1720,74 @@ textarea:focus {
 
   .legend-row {
     display: none;
+  }
+}
+
+/* Robust sheet sizing across short desktop and mobile viewports */
+#eventModal {
+  align-items: center !important;
+  box-sizing: border-box;
+  justify-content: center !important;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) !important;
+}
+
+#eventModal form {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  width: min(640px, calc(100vw - 32px)) !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+#eventModal .flex.justify-center.space-x-4.mt-6 {
+  flex-shrink: 0;
+}
+
+@supports not (height: 100dvh) {
+  #eventModal {
+    min-height: 100vh;
+  }
+
+  #eventModal form {
+    max-height: calc(100vh - 32px) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  #eventModal {
+    align-items: flex-end !important;
+    min-height: 100dvh;
+    padding: max(10px, env(safe-area-inset-top)) 0 0 !important;
+  }
+
+  #eventModal form {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: calc(100dvh - 10px - env(safe-area-inset-top)) !important;
+    width: 100vw !important;
+  }
+}
+
+@media (max-width: 600px) {
+  #googleSignInBtn {
+    font-size: 0.78rem;
+    min-height: 32px;
+    padding: 0.32rem 0.65rem;
+    right: max(10px, env(safe-area-inset-right));
+    top: max(10px, env(safe-area-inset-top));
+    width: auto !important;
+  }
+
+  #userInfo {
+    font-size: 0.74rem;
+    max-width: min(210px, calc(100vw - 20px));
+    right: max(10px, env(safe-area-inset-right));
+    top: max(10px, env(safe-area-inset-top));
   }
 }

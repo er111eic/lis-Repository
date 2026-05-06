@@ -52,6 +52,7 @@ let selectedEventId = null;
 let selectedVenue = null;
 let currentEventDate = null;
 let formValidationVisible = false;
+let lockedScrollY = 0;
 const venues = [
   "晑德-佛堂",
   "晑德-廚房",
@@ -167,10 +168,27 @@ function checkVenueBooked(dateStr, venue, startTime, endTime) {
 }
 
 // ========== Modal 關閉函式 ==========
+function lockPageScroll() {
+  if (document.body.classList.contains('sheet-open')) return;
+  lockedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  document.body.classList.add('sheet-open');
+  document.body.style.top = `-${lockedScrollY}px`;
+}
+
+function unlockPageScrollIfNoSheet() {
+  const eventOpen = !$('#eventModal').hasClass('hidden');
+  const viewOpen = !$('#viewEventModal').hasClass('hidden');
+  if (eventOpen || viewOpen) return;
+  document.body.classList.remove('sheet-open');
+  document.body.style.top = '';
+  window.scrollTo(0, lockedScrollY || 0);
+}
+
 function closeViewEventModal() {
   $('#viewEventModal').addClass('hidden');
   selectedEventId = null;
   currentEventDate = null;
+  unlockPageScrollIfNoSheet();
 }
 
 // 由於 closeViewEventModal 需在 jQuery ready 前宣告，移到檔案最前面
@@ -178,6 +196,7 @@ function closeEventModal() {
   $('#eventModal').addClass('hidden');
   selectedEventId = null;
   currentEventDate = null;
+  unlockPageScrollIfNoSheet();
 }
 
 // ========== 雲端同步（Firestore） ==========
@@ -575,6 +594,7 @@ function editEvent() {
   $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
   // focus 在活動名稱欄位
   $('#eventTitle').focus();
+  lockPageScroll();
   $('#eventModal').removeClass('hidden');
   $('#viewEventModal').addClass('hidden');
   // 讓儲存按鈕永遠顯示
@@ -611,6 +631,7 @@ function viewEvent(eventId, dateStr) {
   html += '</div>';
   $('#viewEventModal .event-detail-content').html(html);
   // 顯示 modal
+  lockPageScroll();
   $('#viewEventModal').removeClass('hidden');
 }
 
@@ -739,6 +760,7 @@ $(function() {
     // 標題
     $('#eventModalTitle').text('新增活動');
     // 顯示 Modal
+    lockPageScroll();
     $('#eventModal').removeClass('hidden');
     // 關閉活動詳情視窗（避免重疊）
     $('#viewEventModal').addClass('hidden');
@@ -788,6 +810,7 @@ $(function() {
     $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
     // focus 在活動名稱欄位
     $('#eventTitle').focus();
+    lockPageScroll();
     $('#eventModal').removeClass('hidden');
     $('#viewEventModal').addClass('hidden');
     // 讓儲存按鈕永遠顯示
