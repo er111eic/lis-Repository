@@ -2343,3 +2343,342 @@ textarea:focus {
     min-height: 30px;
   }
 }
+
+/* Sheet and host-type clarity pass */
+:root {
+  --academic: #007aff;
+  --academic-soft: rgba(0, 122, 255, 0.1);
+  --academic-line: rgba(0, 122, 255, 0.42);
+  --community: #ff9500;
+  --community-soft: rgba(255, 149, 0, 0.12);
+  --community-line: rgba(255, 149, 0, 0.46);
+}
+
+.legend-row {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: inline-flex;
+  margin-bottom: 1rem !important;
+  padding: 0.55rem 0.7rem;
+}
+
+.legend-row .flex-row {
+  align-items: center;
+  gap: 1rem !important;
+  margin-bottom: 0 !important;
+}
+
+.legend-row .w-5 {
+  border-radius: 999px !important;
+  height: 0.66rem !important;
+  margin-right: 0.42rem !important;
+  width: 0.66rem !important;
+}
+
+.legend-row .text-sm {
+  color: var(--muted) !important;
+  font-size: 0.82rem !important;
+}
+
+.legend-row .text-blue-700::after,
+.legend-row .text-orange-700::after {
+  color: var(--tertiary);
+  font-weight: 600;
+  margin-left: 0.24rem;
+}
+
+.legend-row .text-blue-700::after {
+  content: "藍色";
+}
+
+.legend-row .text-orange-700::after {
+  content: "橘色";
+}
+
+.event,
+.today-event-item {
+  overflow: hidden;
+  position: relative;
+}
+
+.event.event-host-academic,
+.today-event-item.event-host-academic {
+  background: var(--academic-soft) !important;
+  border-color: var(--academic-line) !important;
+}
+
+.event.event-host-community,
+.today-event-item.event-host-community {
+  background: var(--community-soft) !important;
+  border-color: var(--community-line) !important;
+}
+
+.event.event-host-academic {
+  border-left: 3px solid var(--academic) !important;
+}
+
+.event.event-host-community {
+  border-left: 3px solid var(--community) !important;
+}
+
+.today-event-item.event-host-academic {
+  border-left: 4px solid var(--academic);
+}
+
+.today-event-item.event-host-community {
+  border-left: 4px solid var(--community);
+}
+
+.event-title-row,
+.today-event-title-row {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.36rem;
+  justify-content: space-between;
+  min-width: 0;
+  width: 100%;
+}
+
+.event-title-row > span:first-child,
+.today-event-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.host-type-badge {
+  border-radius: 999px;
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-weight: 760;
+  line-height: 1;
+  padding: 0.24rem 0.42rem;
+  white-space: nowrap;
+}
+
+.event-host-academic .host-type-badge {
+  background: rgba(0, 122, 255, 0.14);
+  color: var(--academic);
+}
+
+.event-host-community .host-type-badge {
+  background: rgba(255, 149, 0, 0.16);
+  color: #b86400;
+}
+
+#eventModal form {
+  gap: 0;
+}
+
+#eventModalTitle {
+  border-bottom: 1px solid var(--line);
+  margin: -0.15rem -0.15rem 1rem !important;
+  padding: 0 0.15rem 0.95rem;
+}
+
+#eventModal form > .pt-2 {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  margin-bottom: 0.75rem;
+  padding: 0.95rem !important;
+}
+
+#eventModal hr {
+  display: none;
+}
+
+#eventModal form .mb-2.flex,
+#eventModal form .time-field-row {
+  align-items: center !important;
+  background: var(--secondary-fill);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  gap: 0.7rem !important;
+  margin-bottom: 0.65rem !important;
+  padding: 0.55rem;
+}
+
+#eventModal .date-field-row input {
+  background: transparent !important;
+}
+
+#eventModal form .mb-2.flex > label:first-child,
+#eventModal .time-field-row > label:first-child {
+  flex: 0 0 5.2rem;
+  margin-bottom: 0 !important;
+}
+
+#eventModal input:not([type="checkbox"]):not([type="radio"]) {
+  background: #fff !important;
+}
+
+#eventModal .host-selector-row {
+  align-items: stretch !important;
+  background: transparent !important;
+  border: 0 !important;
+  gap: 0.65rem !important;
+  padding: 0 !important;
+}
+
+#eventModal .host-selector-row > label:first-child {
+  align-self: center;
+  flex: 0 0 5.2rem;
+}
+
+.host-type-option {
+  align-items: center !important;
+  background: var(--secondary-fill);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  flex: 1 1 0;
+  gap: 0.55rem;
+  margin: 0 !important;
+  min-height: 54px;
+  padding: 0.65rem 0.72rem;
+}
+
+.host-type-option:has(.host-radio:checked) {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.host-type-academic {
+  color: var(--academic) !important;
+}
+
+.host-type-community {
+  color: #b86400 !important;
+}
+
+.host-type-option .host-radio {
+  height: 20px;
+  margin: 0 !important;
+  width: 20px;
+}
+
+.host-option-copy {
+  align-items: center;
+  display: grid;
+  gap: 0.1rem 0.38rem;
+  grid-template-columns: auto 1fr;
+  min-width: 0;
+}
+
+.host-chip-dot {
+  border-radius: 999px;
+  grid-row: 1 / 3;
+  height: 0.68rem;
+  width: 0.68rem;
+}
+
+.host-type-academic .host-chip-dot {
+  background: var(--academic);
+}
+
+.host-type-community .host-chip-dot {
+  background: var(--community);
+}
+
+.host-option-title {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 760;
+  line-height: 1.15;
+}
+
+.host-option-note {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+#venueSelector label {
+  padding: 0.72rem;
+}
+
+#eventModal .flex.justify-center.space-x-4.mt-6 {
+  gap: 0.7rem;
+  justify-content: flex-end !important;
+}
+
+#cancelEvent,
+#saveEvent {
+  min-width: 7rem;
+}
+
+@media (max-width: 600px) {
+  .legend-row {
+    display: flex;
+    margin: 0.85rem 0 1rem !important;
+    width: 100%;
+  }
+
+  .legend-row .flex-row {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .calendar-day .event {
+    border-left-width: 4px !important;
+  }
+
+  .event-title-row,
+  .today-event-title-row {
+    align-items: center;
+  }
+
+  .host-type-badge {
+    font-size: 0.7rem;
+    padding: 0.26rem 0.46rem;
+  }
+
+  #eventModalTitle {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #eventModal form > .pt-2 {
+    border-radius: 16px;
+    padding: 0.85rem !important;
+  }
+
+  #eventModal form .mb-2.flex,
+  #eventModal form .time-field-row {
+    padding: 0.7rem;
+  }
+
+  #eventModal form .mb-2.flex > label:first-child,
+  #eventModal .time-field-row > label:first-child,
+  .host-selector-row > label:first-child {
+    flex: none;
+  }
+
+  #eventModal .host-selector-row {
+    display: grid !important;
+    gap: 0.55rem !important;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #eventModal .host-selector-row > label:first-child,
+  #eventModal .host-selector-row > #eventHostTypeError {
+    grid-column: 1 / -1;
+  }
+
+  .host-type-option {
+    min-height: 58px;
+    padding: 0.7rem;
+  }
+
+  #eventModal .flex.justify-center.space-x-4.mt-6 {
+    justify-content: center !important;
+  }
+
+  #cancelEvent,
+  #saveEvent {
+    min-width: 0;
+  }
+}

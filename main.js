@@ -91,9 +91,14 @@ function renderTodayOverview() {
   } else {
     html += '<div class="today-event-list">';
     todayEvents.forEach(ev => {
+      const hostClass = ev.hostType === '社會界' ? 'event-host-community' : ev.hostType === '學界' ? 'event-host-academic' : '';
+      const hostBadge = ev.hostType ? `<span class="host-type-badge">${ev.hostType}</span>` : '';
       html += `
-        <button class="today-event-item" type="button" data-event-id="${ev.id}" data-date="${todayStr}">
-          <span class="today-event-title">${ev.title || '未命名活動'}</span>
+        <button class="today-event-item ${hostClass}" type="button" data-event-id="${ev.id}" data-date="${todayStr}">
+          <span class="today-event-title-row">
+            <span class="today-event-title">${ev.title || '未命名活動'}</span>
+            ${hostBadge}
+          </span>
           <span class="today-event-meta">${getEventSummary(ev)}</span>
         </button>
       `;
@@ -234,8 +239,8 @@ function renderCalendar() {
   const $calendarRoot = $('#calendar');
   $calendarRoot.addClass('is-updating');
   const hostTypeBorder = {
-    '學界': '#2196f3', // 藍色
-    '社會界': '#ff9800' // 橘色
+    '學界': '#007aff',
+    '社會界': '#ff9500'
   };
   const year = currentDate.getFullYear(), month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
@@ -268,16 +273,18 @@ function renderCalendar() {
       if(!ev||!ev.id) continue;
       const hostType = ev.hostType || '';
       const borderColor = hostTypeBorder[hostType] || '#bdbdbd';
+      const hostClass = hostType === '學界' ? 'event-host-academic' : hostType === '社會界' ? 'event-host-community' : '';
+      const hostBadge = hostType ? `<span class='host-type-badge'>${hostType}</span>` : '';
       // 根據界別顏色產生淡色背景
       let bgColor = '#f3f4f6';
       if (hostType === '學界') bgColor = 'rgba(33,150,243,0.10)'; // 藍色淡化
       if (hostType === '社會界') bgColor = 'rgba(255,152,0,0.13)'; // 橘色淡化
-      html += `<div class='event' 
+      html += `<div class='event ${hostClass}' 
         style='background:${bgColor};border-bottom:4px solid ${borderColor};padding:2px 6px;margin-bottom:2px;cursor:pointer;border-radius:6px;position:relative;' 
         data-event-id='${ev.id}' 
         data-organizer='${ev.organizer||''}'
         title='${ev.title}\n${ev.venues ? ev.venues.join(", ") : ''}\n${ev.startTime}-${ev.endTime}\n${ev.organizer?('負責人:'+ev.organizer):''}'>
-        <span style='font-weight:bold;'>${ev.title}</span>
+        <span class='event-title-row'><span style='font-weight:bold;'>${ev.title}</span>${hostBadge}</span>
         <span class='event-mobile-meta'>${getEventSummary(ev)}</span>
         <span class='event-organizer-tooltip' style='display:none;position:absolute;left:0;right:0;bottom:-1.8em;background:rgba(0,0,0,0.8);color:#fff;font-size:12px;padding:2px 6px;border-radius:4px;z-index:10;text-align:center;'>${ev.organizer||''}</span>
       </div>`;
