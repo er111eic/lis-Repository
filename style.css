@@ -2495,6 +2495,7 @@ textarea:focus {
   background: var(--secondary-fill);
   border: 1px solid transparent;
   border-radius: 12px;
+  flex-wrap: wrap;
   gap: 0.7rem !important;
   margin-bottom: 0.65rem !important;
   padding: 0.55rem;
@@ -2596,6 +2597,59 @@ textarea:focus {
   line-height: 1.2;
 }
 
+.optional-label {
+  background: var(--secondary-fill);
+  border-radius: 999px;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: 0.34rem;
+  padding: 0.22rem 0.42rem;
+  vertical-align: middle;
+}
+
+#eventModal [id$="Error"] {
+  align-items: flex-start;
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.12);
+  border-radius: 10px;
+  color: #b42318 !important;
+  display: flex;
+  flex: 0 0 100%;
+  font-size: 0.82rem !important;
+  font-weight: 650;
+  line-height: 1.45;
+  margin: 0.1rem 0 0 calc(5.2rem + 0.7rem) !important;
+  padding: 0.48rem 0.62rem;
+  text-align: left;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+#eventModal [id$="Error"]::before {
+  content: "提示";
+  color: #d92d20;
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 760;
+  margin-right: 0.42rem;
+}
+
+#eventModal [id$="Error"]:empty {
+  display: none !important;
+}
+
+#eventHostTypeError,
+#venueSelectorError {
+  margin-left: 0 !important;
+}
+
+#eventOrganizerPhoneError {
+  display: none !important;
+}
+
 #venueSelector label {
   padding: 0.72rem;
 }
@@ -2649,6 +2703,10 @@ textarea:focus {
   #eventModal form .mb-2.flex,
   #eventModal form .time-field-row {
     padding: 0.7rem;
+  }
+
+  #eventModal [id$="Error"] {
+    margin-left: 0 !important;
   }
 
   #eventModal form .mb-2.flex > label:first-child,

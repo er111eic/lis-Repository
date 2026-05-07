@@ -347,11 +347,11 @@ function validateStep(step) {
     $('#eventTitleError').text('');
     $('#eventHostTypeError').text('');
     if (!$('#eventTitle').val().trim()) {
-      $('#eventTitleError').text('請填寫活動名稱');
+      $('#eventTitleError').text('活動名稱還沒填，補上後就能儲存。');
       valid = false;
     }
     if (!$('input[name="eventHostType"]:checked').val()) {
-      $('#eventHostTypeError').text('請選擇主辦單位');
+      $('#eventHostTypeError').text('請選擇主辦單位，日曆會用藍色或橘色標示。');
       valid = false;
     }
   } else if (step === 2) {
@@ -359,29 +359,25 @@ function validateStep(step) {
     $('#eventEndTimeError').text('');
     $('#venueSelectorError').text('');
     if (!$('#eventStartTime').val()) {
-      $('#eventStartTimeError').text('請選擇開始時間');
+      $('#eventStartTimeError').text('請選擇開始時間。');
       valid = false;
     }
     if (!$('#eventEndTime').val()) {
-      $('#eventEndTimeError').text('請選擇結束時間');
+      $('#eventEndTimeError').text('請選擇結束時間。');
       valid = false;
     } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
-      $('#eventEndTimeError').text('結束時間必須晚於開始時間');
+      $('#eventEndTimeError').text('結束時間需要晚於開始時間。');
       valid = false;
     }
     if ($('.venue-checkbox:checked').length === 0) {
-      $('#venueSelectorError').text('請選擇場地');
+      $('#venueSelectorError').text('請至少選擇一個要借用的空間。');
       valid = false;
     }
   } else if (step === 3) {
     $('#eventOrganizerError').text('');
     $('#eventOrganizerPhoneError').text('');
     if (!$('#eventOrganizer').val().trim()) {
-      $('#eventOrganizerError').text('請輸入負責人姓名');
-      valid = false;
-    }
-    if (!$('#eventOrganizerPhone').val().trim()) {
-      $('#eventOrganizerPhoneError').text('請輸入負責人電話');
+      $('#eventOrganizerError').text('請填寫負責人姓名，方便後續聯繫。');
       valid = false;
     }
   }
@@ -478,7 +474,6 @@ async function saveEvent() {
   if (timeToMinutes(startTime) >= timeToMinutes(endTime)) { showToast('結束時間必須晚於開始時間', 'error'); return; }
   if (!venuesArr.length) { showToast('請選擇場地', 'error'); return; }
   if (!organizer) { showToast('請輸入負責人姓名', 'error'); return; }
-  if (!organizerPhone) { showToast('請輸入負責人電話', 'error'); return; }
   // 嚴格審查：所有選擇場地都不能有重疊
   for (const v of venuesArr) {
     if (checkVenueBooked(dateStr, v, startTime, endTime)) {
@@ -629,7 +624,7 @@ function viewEvent(eventId, dateStr) {
     // 直接顯示完整地點名稱
     { label: '場地', value: (ev.venues || []).join('、') },
     { label: '負責人', value: ev.organizer || '' },
-    { label: '電話', value: ev.organizerPhone || '' }
+    { label: '電話', value: ev.organizerPhone || '未填寫' }
   ];
   let html = '<div class="flex flex-col gap-2">';
   detailRows.forEach(row => {
@@ -676,40 +671,35 @@ function validateEventForm() {
   $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
   // 活動名稱
   if (!$('#eventTitle').val().trim()) {
-    $('#eventTitleError').text('請填寫活動名稱');
+    $('#eventTitleError').text('活動名稱還沒填，補上後就能儲存。');
     valid = false;
   }
   // 主辦單位
   if (!$('input[name="eventHostType"]:checked').val()) {
-    $('#eventHostTypeError').text('請選擇主辦單位');
+    $('#eventHostTypeError').text('請選擇主辦單位，日曆會用藍色或橘色標示。');
     valid = false;
   }
   // 開始時間
   if (!$('#eventStartTime').val()) {
-    $('#eventStartTimeError').text('請選擇開始時間');
+    $('#eventStartTimeError').text('請選擇開始時間。');
     valid = false;
   }
   // 結束時間
   if (!$('#eventEndTime').val()) {
-    $('#eventEndTimeError').text('請選擇結束時間');
+    $('#eventEndTimeError').text('請選擇結束時間。');
     valid = false;
   } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
-    $('#eventEndTimeError').text('結束時間必須晚於開始時間');
+    $('#eventEndTimeError').text('結束時間需要晚於開始時間。');
     valid = false;
   }
   // 場地
   if ($('.venue-checkbox:checked').length === 0) {
-    $('#venueSelectorError').text('請選擇場地');
+    $('#venueSelectorError').text('請至少選擇一個要借用的空間。');
     valid = false;
   }
   // 負責人
   if (!$('#eventOrganizer').val().trim()) {
-    $('#eventOrganizerError').text('請輸入負責人姓名');
-    valid = false;
-  }
-  // 電話
-  if (!$('#eventOrganizerPhone').val().trim()) {
-    $('#eventOrganizerPhoneError').text('請輸入負責人電話');
+    $('#eventOrganizerError').text('請填寫負責人姓名，方便後續聯繫。');
     valid = false;
   }
   return valid;
