@@ -216,10 +216,38 @@ async function loadEvents() {
       if (!events[data.date]) events[data.date] = [];
       events[data.date].push({ ...data, id: doc.id });
     });
+    populateOrganizerSuggestions();
   } catch (e) {
     events = {};
+    populateOrganizerSuggestions();
   }
 }
+
+function populateOrganizerSuggestions() {
+  const organizerNames = new Set();
+  Object.values(events).forEach(dayEvents => {
+    if (!Array.isArray(dayEvents)) return;
+    dayEvents.forEach(ev => {
+      const name = (ev && ev.organizer ? String(ev.organizer) : '').trim();
+      if (name) organizerNames.add(name);
+    });
+  });
+  const names = Array.from(organizerNames)
+    .sort((a, b) => a.localeCompare(b, 'zh-Hant'))
+    .slice(0, 30);
+  const $list = $('#organizerSuggestions').empty();
+  names.forEach(name => $('<option>').val(name).appendTo($list));
+}
+
+function clearValidationState() {
+  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  $('#eventModal .field-invalid').removeClass('field-invalid');
+}
+
+function markInvalid(selector) {
+  $(selector).addClass('field-invalid');
+}
+
 async function saveEventToCloud(dateStr, eventObj, isEdit = false) {
   if (!window.db) return;
   const { collection, doc, setDoc, addDoc } = window.firestoreFns;
@@ -343,41 +371,35 @@ function showEventFormStep(step) {
 // 分步驟驗證
 function validateStep(step) {
   let valid = true;
+  clearValidationState();
   if (step === 1) {
-    $('#eventTitleError').text('');
-    $('#eventHostTypeError').text('');
     if (!$('#eventTitle').val().trim()) {
-      $('#eventTitleError').text('活動名稱還沒填，補上後就能儲存。');
+      markInvalid($('#eventTitle').closest('.mb-2.flex'));
       valid = false;
     }
     if (!$('input[name="eventHostType"]:checked').val()) {
-      $('#eventHostTypeError').text('請選擇主辦單位，日曆會用藍色或橘色標示。');
+      markInvalid('.host-selector-row');
       valid = false;
     }
   } else if (step === 2) {
-    $('#eventStartTimeError').text('');
-    $('#eventEndTimeError').text('');
-    $('#venueSelectorError').text('');
     if (!$('#eventStartTime').val()) {
-      $('#eventStartTimeError').text('請選擇開始時間。');
+      markInvalid('.time-field-row');
       valid = false;
     }
     if (!$('#eventEndTime').val()) {
-      $('#eventEndTimeError').text('請選擇結束時間。');
+      markInvalid('.time-field-row');
       valid = false;
     } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
-      $('#eventEndTimeError').text('結束時間需要晚於開始時間。');
+      markInvalid('.time-field-row');
       valid = false;
     }
     if ($('.venue-checkbox:checked').length === 0) {
-      $('#venueSelectorError').text('請至少選擇一個要借用的空間。');
+      markInvalid('#venueSelector');
       valid = false;
     }
   } else if (step === 3) {
-    $('#eventOrganizerError').text('');
-    $('#eventOrganizerPhoneError').text('');
     if (!$('#eventOrganizer').val().trim()) {
-      $('#eventOrganizerError').text('請填寫負責人姓名，方便後續聯繫。');
+      markInvalid($('#eventOrganizer').closest('.mb-2.flex'));
       valid = false;
     }
   }
@@ -592,8 +614,7 @@ function editEvent() {
   $('#eventDate').val(currentEventDate);
   renderVenueSelector();
   $('#eventModalTitle').text('編輯活動');
-  // 清空所有錯誤訊息
-  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  clearValidationState();
   // focus 在活動名稱欄位
   $('#eventTitle').focus();
   lockPageScroll();
@@ -667,39 +688,38 @@ $('#eventEndTime').on('change', function() {
 // ======= 表單即時驗證與提示（繁體中文）=======
 function validateEventForm() {
   let valid = true;
-  // 清空所有錯誤訊息
-  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  clearValidationState();
   // 活動名稱
   if (!$('#eventTitle').val().trim()) {
-    $('#eventTitleError').text('活動名稱還沒填，補上後就能儲存。');
+    markInvalid($('#eventTitle').closest('.mb-2.flex'));
     valid = false;
   }
   // 主辦單位
   if (!$('input[name="eventHostType"]:checked').val()) {
-    $('#eventHostTypeError').text('請選擇主辦單位，日曆會用藍色或橘色標示。');
+    markInvalid('.host-selector-row');
     valid = false;
   }
   // 開始時間
   if (!$('#eventStartTime').val()) {
-    $('#eventStartTimeError').text('請選擇開始時間。');
+    markInvalid('.time-field-row');
     valid = false;
   }
   // 結束時間
   if (!$('#eventEndTime').val()) {
-    $('#eventEndTimeError').text('請選擇結束時間。');
+    markInvalid('.time-field-row');
     valid = false;
   } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
-    $('#eventEndTimeError').text('結束時間需要晚於開始時間。');
+    markInvalid('.time-field-row');
     valid = false;
   }
   // 場地
   if ($('.venue-checkbox:checked').length === 0) {
-    $('#venueSelectorError').text('請至少選擇一個要借用的空間。');
+    markInvalid('#venueSelector');
     valid = false;
   }
   // 負責人
   if (!$('#eventOrganizer').val().trim()) {
-    $('#eventOrganizerError').text('請填寫負責人姓名，方便後續聯繫。');
+    markInvalid($('#eventOrganizer').closest('.mb-2.flex'));
     valid = false;
   }
   return valid;
@@ -752,8 +772,7 @@ $(function() {
     $('#eventOrganizerPhone').val('');
     selectedVenues = [];
     renderVenueSelector && renderVenueSelector();
-    // 清空錯誤訊息
-    $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+    clearValidationState();
     // 標題
     $('#eventModalTitle').text('新增活動');
     // 顯示 Modal
@@ -803,8 +822,7 @@ $(function() {
     $('#eventDate').val(currentEventDate);
     renderVenueSelector();
     $('#eventModalTitle').text('編輯活動');
-    // 清空所有錯誤訊息
-    $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+    clearValidationState();
     // focus 在活動名稱欄位
     $('#eventTitle').focus();
     lockPageScroll();
