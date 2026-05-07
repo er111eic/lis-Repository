@@ -91,9 +91,14 @@ function renderTodayOverview() {
   } else {
     html += '<div class="today-event-list">';
     todayEvents.forEach(ev => {
+      const hostClass = ev.hostType === '社會界' ? 'event-host-community' : ev.hostType === '學界' ? 'event-host-academic' : '';
+      const hostBadge = ev.hostType ? `<span class="host-type-badge">${ev.hostType}</span>` : '';
       html += `
-        <button class="today-event-item" type="button" data-event-id="${ev.id}" data-date="${todayStr}">
-          <span class="today-event-title">${ev.title || '未命名活動'}</span>
+        <button class="today-event-item ${hostClass}" type="button" data-event-id="${ev.id}" data-date="${todayStr}">
+          <span class="today-event-title-row">
+            <span class="today-event-title">${ev.title || '未命名活動'}</span>
+            ${hostBadge}
+          </span>
           <span class="today-event-meta">${getEventSummary(ev)}</span>
         </button>
       `;
@@ -211,10 +216,38 @@ async function loadEvents() {
       if (!events[data.date]) events[data.date] = [];
       events[data.date].push({ ...data, id: doc.id });
     });
+    populateOrganizerSuggestions();
   } catch (e) {
     events = {};
+    populateOrganizerSuggestions();
   }
 }
+
+function populateOrganizerSuggestions() {
+  const organizerNames = new Set();
+  Object.values(events).forEach(dayEvents => {
+    if (!Array.isArray(dayEvents)) return;
+    dayEvents.forEach(ev => {
+      const name = (ev && ev.organizer ? String(ev.organizer) : '').trim();
+      if (name) organizerNames.add(name);
+    });
+  });
+  const names = Array.from(organizerNames)
+    .sort((a, b) => a.localeCompare(b, 'zh-Hant'))
+    .slice(0, 30);
+  const $list = $('#organizerSuggestions').empty();
+  names.forEach(name => $('<option>').val(name).appendTo($list));
+}
+
+function clearValidationState() {
+  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  $('#eventModal .field-invalid').removeClass('field-invalid');
+}
+
+function markInvalid(selector) {
+  $(selector).addClass('field-invalid');
+}
+
 async function saveEventToCloud(dateStr, eventObj, isEdit = false) {
   if (!window.db) return;
   const { collection, doc, setDoc, addDoc } = window.firestoreFns;
@@ -234,8 +267,8 @@ function renderCalendar() {
   const $calendarRoot = $('#calendar');
   $calendarRoot.addClass('is-updating');
   const hostTypeBorder = {
-    '學界': '#2196f3', // 藍色
-    '社會界': '#ff9800' // 橘色
+    '學界': '#007aff',
+    '社會界': '#ff9500'
   };
   const year = currentDate.getFullYear(), month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1), lastDay = new Date(year, month+1, 0);
@@ -268,16 +301,18 @@ function renderCalendar() {
       if(!ev||!ev.id) continue;
       const hostType = ev.hostType || '';
       const borderColor = hostTypeBorder[hostType] || '#bdbdbd';
+      const hostClass = hostType === '學界' ? 'event-host-academic' : hostType === '社會界' ? 'event-host-community' : '';
+      const hostBadge = hostType ? `<span class='host-type-badge'>${hostType}</span>` : '';
       // 根據界別顏色產生淡色背景
       let bgColor = '#f3f4f6';
       if (hostType === '學界') bgColor = 'rgba(33,150,243,0.10)'; // 藍色淡化
       if (hostType === '社會界') bgColor = 'rgba(255,152,0,0.13)'; // 橘色淡化
-      html += `<div class='event' 
+      html += `<div class='event ${hostClass}' 
         style='background:${bgColor};border-bottom:4px solid ${borderColor};padding:2px 6px;margin-bottom:2px;cursor:pointer;border-radius:6px;position:relative;' 
         data-event-id='${ev.id}' 
         data-organizer='${ev.organizer||''}'
         title='${ev.title}\n${ev.venues ? ev.venues.join(", ") : ''}\n${ev.startTime}-${ev.endTime}\n${ev.organizer?('負責人:'+ev.organizer):''}'>
-        <span style='font-weight:bold;'>${ev.title}</span>
+        <span class='event-title-row'><span style='font-weight:bold;'>${ev.title}</span>${hostBadge}</span>
         <span class='event-mobile-meta'>${getEventSummary(ev)}</span>
         <span class='event-organizer-tooltip' style='display:none;position:absolute;left:0;right:0;bottom:-1.8em;background:rgba(0,0,0,0.8);color:#fff;font-size:12px;padding:2px 6px;border-radius:4px;z-index:10;text-align:center;'>${ev.organizer||''}</span>
       </div>`;
@@ -336,45 +371,35 @@ function showEventFormStep(step) {
 // 分步驟驗證
 function validateStep(step) {
   let valid = true;
+  clearValidationState();
   if (step === 1) {
-    $('#eventTitleError').text('');
-    $('#eventHostTypeError').text('');
     if (!$('#eventTitle').val().trim()) {
-      $('#eventTitleError').text('請填寫活動名稱');
+      markInvalid($('#eventTitle').closest('.mb-2.flex'));
       valid = false;
     }
     if (!$('input[name="eventHostType"]:checked').val()) {
-      $('#eventHostTypeError').text('請選擇主辦單位');
+      markInvalid('.host-selector-row');
       valid = false;
     }
   } else if (step === 2) {
-    $('#eventStartTimeError').text('');
-    $('#eventEndTimeError').text('');
-    $('#venueSelectorError').text('');
     if (!$('#eventStartTime').val()) {
-      $('#eventStartTimeError').text('請選擇開始時間');
+      markInvalid('.time-field-row');
       valid = false;
     }
     if (!$('#eventEndTime').val()) {
-      $('#eventEndTimeError').text('請選擇結束時間');
+      markInvalid('.time-field-row');
       valid = false;
     } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
-      $('#eventEndTimeError').text('結束時間必須晚於開始時間');
+      markInvalid('.time-field-row');
       valid = false;
     }
     if ($('.venue-checkbox:checked').length === 0) {
-      $('#venueSelectorError').text('請選擇場地');
+      markInvalid('#venueSelector');
       valid = false;
     }
   } else if (step === 3) {
-    $('#eventOrganizerError').text('');
-    $('#eventOrganizerPhoneError').text('');
     if (!$('#eventOrganizer').val().trim()) {
-      $('#eventOrganizerError').text('請輸入負責人姓名');
-      valid = false;
-    }
-    if (!$('#eventOrganizerPhone').val().trim()) {
-      $('#eventOrganizerPhoneError').text('請輸入負責人電話');
+      markInvalid($('#eventOrganizer').closest('.mb-2.flex'));
       valid = false;
     }
   }
@@ -471,7 +496,6 @@ async function saveEvent() {
   if (timeToMinutes(startTime) >= timeToMinutes(endTime)) { showToast('結束時間必須晚於開始時間', 'error'); return; }
   if (!venuesArr.length) { showToast('請選擇場地', 'error'); return; }
   if (!organizer) { showToast('請輸入負責人姓名', 'error'); return; }
-  if (!organizerPhone) { showToast('請輸入負責人電話', 'error'); return; }
   // 嚴格審查：所有選擇場地都不能有重疊
   for (const v of venuesArr) {
     if (checkVenueBooked(dateStr, v, startTime, endTime)) {
@@ -590,8 +614,7 @@ function editEvent() {
   $('#eventDate').val(currentEventDate);
   renderVenueSelector();
   $('#eventModalTitle').text('編輯活動');
-  // 清空所有錯誤訊息
-  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  clearValidationState();
   // focus 在活動名稱欄位
   $('#eventTitle').focus();
   lockPageScroll();
@@ -622,7 +645,7 @@ function viewEvent(eventId, dateStr) {
     // 直接顯示完整地點名稱
     { label: '場地', value: (ev.venues || []).join('、') },
     { label: '負責人', value: ev.organizer || '' },
-    { label: '電話', value: ev.organizerPhone || '' }
+    { label: '電話', value: ev.organizerPhone || '未填寫' }
   ];
   let html = '<div class="flex flex-col gap-2">';
   detailRows.forEach(row => {
@@ -665,44 +688,38 @@ $('#eventEndTime').on('change', function() {
 // ======= 表單即時驗證與提示（繁體中文）=======
 function validateEventForm() {
   let valid = true;
-  // 清空所有錯誤訊息
-  $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+  clearValidationState();
   // 活動名稱
   if (!$('#eventTitle').val().trim()) {
-    $('#eventTitleError').text('請填寫活動名稱');
+    markInvalid($('#eventTitle').closest('.mb-2.flex'));
     valid = false;
   }
   // 主辦單位
   if (!$('input[name="eventHostType"]:checked').val()) {
-    $('#eventHostTypeError').text('請選擇主辦單位');
+    markInvalid('.host-selector-row');
     valid = false;
   }
   // 開始時間
   if (!$('#eventStartTime').val()) {
-    $('#eventStartTimeError').text('請選擇開始時間');
+    markInvalid('.time-field-row');
     valid = false;
   }
   // 結束時間
   if (!$('#eventEndTime').val()) {
-    $('#eventEndTimeError').text('請選擇結束時間');
+    markInvalid('.time-field-row');
     valid = false;
   } else if ($('#eventStartTime').val() && timeToMinutes($('#eventEndTime').val()) <= timeToMinutes($('#eventStartTime').val())) {
-    $('#eventEndTimeError').text('結束時間必須晚於開始時間');
+    markInvalid('.time-field-row');
     valid = false;
   }
   // 場地
   if ($('.venue-checkbox:checked').length === 0) {
-    $('#venueSelectorError').text('請選擇場地');
+    markInvalid('#venueSelector');
     valid = false;
   }
   // 負責人
   if (!$('#eventOrganizer').val().trim()) {
-    $('#eventOrganizerError').text('請輸入負責人姓名');
-    valid = false;
-  }
-  // 電話
-  if (!$('#eventOrganizerPhone').val().trim()) {
-    $('#eventOrganizerPhoneError').text('請輸入負責人電話');
+    markInvalid($('#eventOrganizer').closest('.mb-2.flex'));
     valid = false;
   }
   return valid;
@@ -755,8 +772,7 @@ $(function() {
     $('#eventOrganizerPhone').val('');
     selectedVenues = [];
     renderVenueSelector && renderVenueSelector();
-    // 清空錯誤訊息
-    $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+    clearValidationState();
     // 標題
     $('#eventModalTitle').text('新增活動');
     // 顯示 Modal
@@ -806,8 +822,7 @@ $(function() {
     $('#eventDate').val(currentEventDate);
     renderVenueSelector();
     $('#eventModalTitle').text('編輯活動');
-    // 清空所有錯誤訊息
-    $('#eventTitleError,#eventHostTypeError,#eventStartTimeError,#eventEndTimeError,#venueSelectorError,#eventOrganizerError,#eventOrganizerPhoneError').text('');
+    clearValidationState();
     // focus 在活動名稱欄位
     $('#eventTitle').focus();
     lockPageScroll();
