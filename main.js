@@ -54,6 +54,10 @@ let currentEventDate = null;
 let formValidationVisible = false;
 let lockedScrollY = 0;
 const referenceCalendarStorageKey = 'xdsdReferenceCalendarVisible';
+const referenceCalendarId = '083f86qgr43fgql2tg4e9k7o78@group.calendar.google.com';
+let referenceCalendarAccessToken = '';
+let referenceCalendarEvents = {};
+let referenceCalendarLoadedMonth = '';
 const venues = [
   "晑德-佛堂",
   "晑德-廚房",
@@ -65,6 +69,35 @@ const venues = [
 
 function formatDateStr(date) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function isReferenceCalendarVisible() {
+  return !$('#referenceCalendarPanel').hasClass('hidden');
+}
+
+function getCurrentMonthKey() {
+  return `${currentDate.getFullYear()}-${String(currentDate.getMonth()+1).padStart(2,'0')}`;
+}
+
+function setReferenceCalendarStatus(message, tone) {
+  const $status = $('#referenceCalendarStatus');
+  $status.text(message);
+  $status.removeClass('is-loading is-error is-ready');
+  if (tone) $status.addClass(`is-${tone}`);
+}
+
+function setReferenceCalendarLoading(loading) {
+  $('#authorizeReferenceCalendar, #reloadReferenceCalendar').prop('disabled', loading);
 }
 
 function getEventSummary(ev) {
@@ -121,6 +154,10 @@ function setReferenceCalendarVisible(visible) {
   $toggle.toggleClass('is-active', visible);
   $toggle.html(visible ? '<span class="icon">◎</span>隱藏參考' : '<span class="icon">◎</span>參考日曆');
   localStorage.setItem(referenceCalendarStorageKey, visible ? '1' : '0');
+  renderCalendar();
+  if (visible && referenceCalendarAccessToken && referenceCalendarLoadedMonth !== getCurrentMonthKey()) {
+    loadReferenceCalendarEvents();
+  }
 }
 
 function initReferenceCalendarToggle() {
@@ -132,6 +169,129 @@ function initReferenceCalendarToggle() {
   $('#hideReferenceCalendar').off('click').on('click', function() {
     setReferenceCalendarVisible(false);
   });
+  $('#authorizeReferenceCalendar').off('click').on('click', authorizeReferenceCalendar);
+  $('#reloadReferenceCalendar').off('click').on('click', loadReferenceCalendarEvents);
+  $('#reloadReferenceCalendar').prop('disabled', !referenceCalendarAccessToken);
+  setReferenceCalendarStatus(
+    referenceCalendarAccessToken ? '已授權，可重新載入目前月份參考活動。' : '尚未授權，參考活動不會顯示在日曆上。',
+    referenceCalendarAccessToken ? 'ready' : ''
+  );
+}
+
+function getReferenceCalendarRange() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  return {
+    timeMin: new Date(year, month, 1, 0, 0, 0).toISOString(),
+    timeMax: new Date(year, month + 1, 1, 0, 0, 0).toISOString()
+  };
+}
+
+function getGoogleEventTimeText(item) {
+  if (!item.start) return '未設定時間';
+  if (item.start.date) return '全天';
+  const start = item.start.dateTime ? new Date(item.start.dateTime) : null;
+  const end = item.end && item.end.dateTime ? new Date(item.end.dateTime) : null;
+  if (!start || isNaN(start)) return '未設定時間';
+  const format = date => date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return end && !isNaN(end) ? `${format(start)}-${format(end)}` : format(start);
+}
+
+function addReferenceEventToDate(map, dateStr, item) {
+  if (!map[dateStr]) map[dateStr] = [];
+  map[dateStr].push({
+    id: item.id || `${dateStr}-${map[dateStr].length}`,
+    title: item.summary || '未命名參考活動',
+    timeText: getGoogleEventTimeText(item),
+    location: item.location || ''
+  });
+}
+
+function mapGoogleCalendarEvents(items) {
+  const mapped = {};
+  items.forEach(item => {
+    if (!item.start) return;
+    if (item.start.date) {
+      const start = new Date(`${item.start.date}T00:00:00`);
+      const endValue = item.end && item.end.date ? item.end.date : item.start.date;
+      const end = new Date(`${endValue}T00:00:00`);
+      const last = end > start ? end : new Date(start.getTime() + 86400000);
+      for (let d = new Date(start); d < last; d.setDate(d.getDate() + 1)) {
+        addReferenceEventToDate(mapped, formatDateStr(d), item);
+      }
+      return;
+    }
+    const start = new Date(item.start.dateTime);
+    if (isNaN(start)) return;
+    addReferenceEventToDate(mapped, formatDateStr(start), item);
+  });
+  return mapped;
+}
+
+async function authorizeReferenceCalendar() {
+  if (typeof window.requestGoogleCalendarAccess !== 'function') {
+    showToast('Google 授權尚未準備完成，請重新整理後再試。');
+    return;
+  }
+  try {
+    setReferenceCalendarLoading(true);
+    setReferenceCalendarStatus('正在向 Google 要求日曆讀取權限...', 'loading');
+    referenceCalendarAccessToken = await window.requestGoogleCalendarAccess();
+    $('#reloadReferenceCalendar').prop('disabled', false);
+    await loadReferenceCalendarEvents();
+  } catch (error) {
+    setReferenceCalendarStatus('授權失敗，請確認已允許讀取日曆。', 'error');
+    showToast('授權失敗，請再試一次。');
+    setReferenceCalendarLoading(false);
+  }
+}
+
+async function loadReferenceCalendarEvents() {
+  if (!referenceCalendarAccessToken) {
+    setReferenceCalendarStatus('請先授權讀取 Google 日曆。', 'error');
+    $('#reloadReferenceCalendar').prop('disabled', true);
+    return;
+  }
+  const { timeMin, timeMax } = getReferenceCalendarRange();
+  try {
+    setReferenceCalendarLoading(true);
+    setReferenceCalendarStatus('正在載入目前月份的參考活動...', 'loading');
+    let pageToken = '';
+    const allItems = [];
+    do {
+      const params = new URLSearchParams({
+        timeMin,
+        timeMax,
+        singleEvents: 'true',
+        orderBy: 'startTime',
+        maxResults: '2500',
+        timeZone: 'Asia/Taipei'
+      });
+      if (pageToken) params.set('pageToken', pageToken);
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(referenceCalendarId)}/events?${params}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${referenceCalendarAccessToken}` }
+      });
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) referenceCalendarAccessToken = '';
+        throw new Error(`Calendar API ${response.status}`);
+      }
+      const data = await response.json();
+      allItems.push(...(data.items || []));
+      pageToken = data.nextPageToken || '';
+    } while (pageToken);
+    referenceCalendarEvents = mapGoogleCalendarEvents(allItems);
+    referenceCalendarLoadedMonth = getCurrentMonthKey();
+    const count = Object.values(referenceCalendarEvents).reduce((sum, list) => sum + list.length, 0);
+    setReferenceCalendarStatus(`已載入 ${count} 筆參考活動，會以灰色標示在日曆中。`, 'ready');
+    renderCalendar();
+  } catch (error) {
+    setReferenceCalendarStatus('讀取失敗，請確認 Calendar API 已啟用或重新授權。', 'error');
+    showToast('參考日曆讀取失敗。');
+  } finally {
+    setReferenceCalendarLoading(false);
+    $('#reloadReferenceCalendar').prop('disabled', !referenceCalendarAccessToken);
+  }
 }
 
 // 場地選擇渲染
@@ -305,7 +465,11 @@ function renderCalendar() {
     // 取得農曆日期
     const lunarStr = getLunarDateString(new Date(year, month, day));
     const weekday = weekdayNames[new Date(year, month, day).getDay()];
-    const hasEvents = Array.isArray(events[dateStr]) && events[dateStr].some(ev => ev && ev.id);
+    const dayEvents = Array.isArray(events[dateStr]) ? events[dateStr].filter(ev => ev && ev.id) : [];
+    const referenceDayEvents = isReferenceCalendarVisible() && referenceCalendarLoadedMonth === getCurrentMonthKey()
+      ? (referenceCalendarEvents[dateStr] || [])
+      : [];
+    const hasEvents = dayEvents.length > 0 || referenceDayEvents.length > 0;
     let html = `<div class='calendar-day ${hasEvents ? 'has-events' : ''} bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
     // 新版：同一列，禮拜幾靠右，日期農曆靠左
     html += `<div class='flex flex-row items-center justify-between mb-1'>`;
@@ -319,8 +483,7 @@ function renderCalendar() {
     html += `</div>`;
     html += `<span class='calendar-weekday-label md:hidden text-xs text-gray-500' style='display:none;'>${weekday}</span>`;
     html += `</div><div class='events-container'>`;
-    if(events[dateStr]) for(const ev of events[dateStr]) {
-      if(!ev||!ev.id) continue;
+    for(const ev of dayEvents) {
       const hostType = ev.hostType || '';
       const borderColor = hostTypeBorder[hostType] || '#bdbdbd';
       const hostClass = hostType === '學界' ? 'event-host-academic' : hostType === '社會界' ? 'event-host-community' : '';
@@ -337,6 +500,14 @@ function renderCalendar() {
         <span class='event-title-row'><span style='font-weight:bold;'>${ev.title}</span>${hostBadge}</span>
         <span class='event-mobile-meta'>${getEventSummary(ev)}</span>
         <span class='event-organizer-tooltip' style='display:none;position:absolute;left:0;right:0;bottom:-1.8em;background:rgba(0,0,0,0.8);color:#fff;font-size:12px;padding:2px 6px;border-radius:4px;z-index:10;text-align:center;'>${ev.organizer||''}</span>
+      </div>`;
+    }
+    for (const refEvent of referenceDayEvents) {
+      const locationText = refEvent.location ? `｜${refEvent.location}` : '';
+      html += `<div class='event reference-event'
+        title='${escapeHtml(refEvent.title)}\n${escapeHtml(refEvent.timeText)}${escapeHtml(locationText)}'>
+        <span class='event-title-row'><span style='font-weight:bold;'>${escapeHtml(refEvent.title)}</span><span class='reference-event-badge'>參考</span></span>
+        <span class='event-mobile-meta'>${escapeHtml(refEvent.timeText)}${escapeHtml(locationText)}</span>
       </div>`;
     }
     if (!hasEvents) {
@@ -357,12 +528,15 @@ function renderCalendar() {
   });
   // 允許點擊日曆空白區塊直接新增活動（已實作，強化 UX 提示）
   $('.calendar-day[data-date]').off('click').on('click',function(e){
-    if($(e.target).hasClass('event')) return;
+    if($(e.target).closest('.event').length) return;
     const date = $(this).data('date');
     if (!date) return;
     openEventModal(date);
   });
-  $('.event').off('click').on('click',function(e){
+  $('.reference-event').off('click').on('click', function(e) {
+    e.stopPropagation();
+  });
+  $('.event:not(.reference-event)').off('click').on('click',function(e){
     e.stopPropagation();
     const date = $(this).closest('.calendar-day').data('date');
     viewEvent($(this).data('event-id'), date);
@@ -453,11 +627,13 @@ $(function() {
     currentDate.setMonth(currentDate.getMonth()-1);
     updateMonthYearDisplay();
     renderCalendar();
+    if (isReferenceCalendarVisible() && referenceCalendarAccessToken) loadReferenceCalendarEvents();
   });
   $('#nextMonth').off('click').on('click', function() {
     currentDate.setMonth(currentDate.getMonth()+1);
     updateMonthYearDisplay();
     renderCalendar();
+    if (isReferenceCalendarVisible() && referenceCalendarAccessToken) loadReferenceCalendarEvents();
   });
   $('#quickAddEvent').off('click').on('click', function() {
     openEventModal(formatDateStr(new Date()));
