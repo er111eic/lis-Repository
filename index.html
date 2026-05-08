@@ -62,8 +62,27 @@
                         <h2 id="currentMonthYear" class="text-xl font-semibold text-gray-700 w-40 text-center"></h2>
                         <button id="nextMonth" class="btn-primary btn-icon" aria-label="下一個月"><span class="icon">&#8594;</span></button>
                     </div>
-                    <button id="quickAddEvent" class="btn-primary btn-icon quick-add-btn" type="button"><span class="icon">＋</span>新增借用</button>
+                    <div class="toolbar-actions">
+                      <button id="toggleReferenceCalendar" class="btn-secondary btn-icon reference-calendar-toggle" type="button" aria-expanded="false" aria-controls="referenceCalendarPanel"><span class="icon">◎</span>參考日曆</button>
+                      <button id="quickAddEvent" class="btn-primary btn-icon quick-add-btn" type="button"><span class="icon">＋</span>新增借用</button>
+                    </div>
                 </div>
+
+                <section id="referenceCalendarPanel" class="reference-calendar-panel hidden mb-6" aria-label="Google 參考日曆">
+                  <div class="reference-calendar-header">
+                    <div>
+                      <p class="reference-calendar-kicker">Google Calendar</p>
+                      <h3>參考日曆</h3>
+                    </div>
+                    <button id="hideReferenceCalendar" class="btn-secondary btn-icon reference-calendar-close" type="button"><span class="icon">×</span>隱藏</button>
+                  </div>
+                  <iframe
+                    id="referenceCalendarFrame"
+                    title="Google 參考日曆"
+                    src="https://calendar.google.com/calendar/embed?src=083f86qgr43fgql2tg4e9k7o78%40group.calendar.google.com&ctz=Asia%2FTaipei"
+                    loading="lazy">
+                  </iframe>
+                </section>
 
                 <section id="todayOverview" class="today-overview mb-6" aria-live="polite"></section>
 

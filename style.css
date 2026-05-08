@@ -1994,6 +1994,64 @@ main .container {
   padding-right: 1rem;
 }
 
+.toolbar-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.65rem;
+  margin-left: auto;
+}
+
+.reference-calendar-toggle.is-active {
+  background: rgba(88, 86, 214, 0.1);
+  color: #5856d6;
+}
+
+.reference-calendar-panel {
+  animation: app-fade-up var(--motion-base) var(--motion-ease) both;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.reference-calendar-header {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+}
+
+.reference-calendar-kicker {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0 0 0.24rem;
+}
+
+.reference-calendar-header h3 {
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 760;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.reference-calendar-close {
+  flex: 0 0 auto;
+  min-height: 36px;
+}
+
+#referenceCalendarFrame {
+  background: #fff;
+  border: 0;
+  display: block;
+  height: min(68vh, 620px);
+  width: 100%;
+}
+
 .today-overview {
   padding: 1rem;
 }
@@ -2271,6 +2329,28 @@ textarea:focus {
   .quick-add-btn {
     margin-left: 0;
     width: 100%;
+  }
+
+  .toolbar-actions {
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: 1fr 1fr;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .toolbar-actions .btn-primary,
+  .toolbar-actions .btn-secondary {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .reference-calendar-header {
+    padding: 0.8rem;
+  }
+
+  #referenceCalendarFrame {
+    height: min(62vh, 520px);
   }
 
   .calendar-day-empty {
