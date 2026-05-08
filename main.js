@@ -54,10 +54,6 @@ let currentEventDate = null;
 let formValidationVisible = false;
 let lockedScrollY = 0;
 const referenceCalendarStorageKey = 'xdsdReferenceCalendarVisible';
-const referenceCalendarUrlStorageKey = 'xdsdReferenceCalendarUrl';
-const referenceCalendarProxyStorageKey = 'xdsdReferenceCalendarProxyAllowed';
-let referenceCalendarEvents = {};
-let referenceCalendarLoaded = false;
 const venues = [
   "晑德-佛堂",
   "晑德-廚房",
@@ -76,16 +72,6 @@ function getEventSummary(ev) {
   const venuesText = Array.isArray(ev.venues) && ev.venues.length ? ev.venues.join('、') : '未設定空間';
   const hostType = ev.hostType ? `｜${ev.hostType}` : '';
   return `${time} ${venuesText}${hostType}`;
-}
-
-function escapeHtml(value) {
-  return String(value || '').replace(/[&<>"']/g, char => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[char]));
 }
 
 function renderTodayOverview() {
@@ -135,15 +121,10 @@ function setReferenceCalendarVisible(visible) {
   $toggle.toggleClass('is-active', visible);
   $toggle.html(visible ? '<span class="icon">◎</span>隱藏參考' : '<span class="icon">◎</span>參考日曆');
   localStorage.setItem(referenceCalendarStorageKey, visible ? '1' : '0');
-  renderCalendar();
 }
 
 function initReferenceCalendarToggle() {
   const savedVisible = localStorage.getItem(referenceCalendarStorageKey) === '1';
-  const savedUrl = localStorage.getItem(referenceCalendarUrlStorageKey) || '';
-  const proxyAllowed = localStorage.getItem(referenceCalendarProxyStorageKey) === '1';
-  $('#referenceCalendarUrl').val(savedUrl);
-  $('#referenceCalendarProxyAllowed').prop('checked', proxyAllowed);
   setReferenceCalendarVisible(savedVisible);
   $('#toggleReferenceCalendar').off('click').on('click', function() {
     setReferenceCalendarVisible($('#referenceCalendarPanel').hasClass('hidden'));
@@ -151,185 +132,6 @@ function initReferenceCalendarToggle() {
   $('#hideReferenceCalendar').off('click').on('click', function() {
     setReferenceCalendarVisible(false);
   });
-  $('#loadReferenceCalendar').off('click').on('click', loadReferenceCalendar);
-  $('#referenceCalendarProxyAllowed').off('change').on('change', function() {
-    localStorage.setItem(referenceCalendarProxyStorageKey, this.checked ? '1' : '0');
-  });
-  if (savedVisible && savedUrl) loadReferenceCalendar();
-}
-
-function setReferenceCalendarStatus(message, type = '') {
-  $('#referenceCalendarStatus')
-    .text(message)
-    .removeClass('is-error is-success')
-    .addClass(type ? `is-${type}` : '');
-}
-
-async function loadReferenceCalendar() {
-  const url = $('#referenceCalendarUrl').val().trim();
-  const useProxy = $('#referenceCalendarProxyAllowed').is(':checked');
-  if (!url) {
-    setReferenceCalendarStatus('請貼上 iCal URL', 'error');
-    return;
-  }
-  localStorage.setItem(referenceCalendarUrlStorageKey, url);
-  localStorage.setItem(referenceCalendarProxyStorageKey, useProxy ? '1' : '0');
-  setReferenceCalendarStatus('載入中');
-  try {
-    const icsText = await fetchIcalText(url, useProxy);
-    referenceCalendarEvents = parseIcalEvents(icsText);
-    referenceCalendarLoaded = true;
-    const count = Object.values(referenceCalendarEvents).reduce((sum, dayEvents) => sum + dayEvents.length, 0);
-    setReferenceCalendarStatus(`已載入 ${count} 筆參考活動`, 'success');
-    renderCalendar();
-  } catch (err) {
-    referenceCalendarEvents = {};
-    referenceCalendarLoaded = false;
-    renderCalendar();
-    setReferenceCalendarStatus(useProxy ? '載入失敗' : '瀏覽器阻擋 iCal，請勾選公開代理再載入', 'error');
-  }
-}
-
-async function fetchIcalText(url, useProxy) {
-  const targetUrl = useProxy ? `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` : url;
-  const response = await fetch(targetUrl, { cache: 'no-store' });
-  if (!response.ok) throw new Error(`iCal ${response.status}`);
-  const text = await response.text();
-  if (!text.includes('BEGIN:VCALENDAR')) throw new Error('Invalid iCal');
-  return text;
-}
-
-function unfoldIcalLines(text) {
-  return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').reduce((lines, line) => {
-    if (/^[ \t]/.test(line) && lines.length) {
-      lines[lines.length - 1] += line.slice(1);
-    } else {
-      lines.push(line);
-    }
-    return lines;
-  }, []);
-}
-
-function getIcalValue(lines, name) {
-  const line = lines.find(item => item.startsWith(`${name}:`) || item.startsWith(`${name};`));
-  return line ? line.slice(line.indexOf(':') + 1) : '';
-}
-
-function unescapeIcalText(value) {
-  return value.replace(/\\n/g, ' ').replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\\\/g, '\\').trim();
-}
-
-function parseIcalDate(value) {
-  if (!value) return null;
-  if (/^\d{8}$/.test(value)) {
-    const year = Number(value.slice(0, 4));
-    const month = Number(value.slice(4, 6)) - 1;
-    const day = Number(value.slice(6, 8));
-    return { date: new Date(year, month, day), allDay: true };
-  }
-  const match = value.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)$/);
-  if (!match) return null;
-  const [, y, mo, d, h, mi, s, z] = match;
-  const date = z
-    ? new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s)))
-    : new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s));
-  return { date, allDay: false };
-}
-
-function formatReferenceTime(start, end, allDay) {
-  if (allDay) return '整日';
-  const fmt = date => `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-  return end ? `${fmt(start)}-${fmt(end)}` : fmt(start);
-}
-
-function addReferenceEventToDates(map, event) {
-  const startDay = new Date(event.start.getFullYear(), event.start.getMonth(), event.start.getDate());
-  let endDay = event.end ? new Date(event.end.getFullYear(), event.end.getMonth(), event.end.getDate()) : new Date(startDay);
-  if (event.allDay && event.end) endDay.setDate(endDay.getDate() - 1);
-  if (endDay < startDay) endDay = new Date(startDay);
-  for (let day = new Date(startDay); day <= endDay; day.setDate(day.getDate() + 1)) {
-    const dateStr = formatDateStr(day);
-    if (!map[dateStr]) map[dateStr] = [];
-    map[dateStr].push(event);
-  }
-}
-
-function parseRrule(value) {
-  return value.split(';').reduce((rule, part) => {
-    const [key, raw] = part.split('=');
-    if (key && raw) rule[key] = raw;
-    return rule;
-  }, {});
-}
-
-function addRecurringReferenceEventToDates(map, baseEvent, rruleValue, exdateValues) {
-  const rule = parseRrule(rruleValue);
-  const interval = Math.max(1, Number(rule.INTERVAL || 1));
-  const countLimit = Math.min(Number(rule.COUNT || 500), 500);
-  const until = rule.UNTIL ? parseIcalDate(rule.UNTIL)?.date : null;
-  const hardStop = new Date(baseEvent.start);
-  hardStop.setFullYear(hardStop.getFullYear() + 5);
-  const duration = baseEvent.end ? baseEvent.end.getTime() - baseEvent.start.getTime() : 0;
-  const excluded = new Set(exdateValues.map(value => {
-    const parsed = parseIcalDate(value);
-    return parsed ? formatDateStr(parsed.date) : '';
-  }).filter(Boolean));
-  let occurrence = new Date(baseEvent.start);
-  let added = 0;
-  while (added < countLimit && occurrence <= hardStop && (!until || occurrence <= until)) {
-    const dateKey = formatDateStr(occurrence);
-    if (!excluded.has(dateKey)) {
-      const event = {
-        ...baseEvent,
-        start: new Date(occurrence),
-        end: duration ? new Date(occurrence.getTime() + duration) : null
-      };
-      event.timeText = formatReferenceTime(event.start, event.end, event.allDay);
-      addReferenceEventToDates(map, event);
-    }
-    added += 1;
-    if (rule.FREQ === 'DAILY') occurrence.setDate(occurrence.getDate() + interval);
-    else if (rule.FREQ === 'WEEKLY') occurrence.setDate(occurrence.getDate() + (7 * interval));
-    else if (rule.FREQ === 'MONTHLY') occurrence.setMonth(occurrence.getMonth() + interval);
-    else if (rule.FREQ === 'YEARLY') occurrence.setFullYear(occurrence.getFullYear() + interval);
-    else break;
-  }
-}
-
-function parseIcalEvents(text) {
-  const lines = unfoldIcalLines(text);
-  const map = {};
-  let block = null;
-  lines.forEach(line => {
-    if (line === 'BEGIN:VEVENT') block = [];
-    else if (line === 'END:VEVENT' && block) {
-      const summary = unescapeIcalText(getIcalValue(block, 'SUMMARY')) || '未命名活動';
-      const startParsed = parseIcalDate(getIcalValue(block, 'DTSTART'));
-      if (startParsed) {
-        const endParsed = parseIcalDate(getIcalValue(block, 'DTEND'));
-        const rrule = getIcalValue(block, 'RRULE');
-        const exdates = block
-          .filter(item => item.startsWith('EXDATE:') || item.startsWith('EXDATE;'))
-          .flatMap(item => item.slice(item.indexOf(':') + 1).split(','));
-        const event = {
-          title: summary,
-          start: startParsed.date,
-          end: endParsed ? endParsed.date : null,
-          allDay: startParsed.allDay,
-          timeText: formatReferenceTime(startParsed.date, endParsed ? endParsed.date : null, startParsed.allDay)
-        };
-        if (rrule) addRecurringReferenceEventToDates(map, event, rrule, exdates);
-        else addReferenceEventToDates(map, event);
-      }
-      block = null;
-    } else if (block) {
-      block.push(line);
-    }
-  });
-  Object.values(map).forEach(dayEvents => {
-    dayEvents.sort((a, b) => a.start - b.start || a.title.localeCompare(b.title, 'zh-Hant'));
-  });
-  return map;
 }
 
 // 場地選擇渲染
@@ -504,9 +306,7 @@ function renderCalendar() {
     const lunarStr = getLunarDateString(new Date(year, month, day));
     const weekday = weekdayNames[new Date(year, month, day).getDay()];
     const hasEvents = Array.isArray(events[dateStr]) && events[dateStr].some(ev => ev && ev.id);
-    const referenceDayEvents = (!$('#referenceCalendarPanel').hasClass('hidden') && referenceCalendarLoaded && Array.isArray(referenceCalendarEvents[dateStr])) ? referenceCalendarEvents[dateStr] : [];
-    const hasReferenceEvents = referenceDayEvents.length > 0;
-    let html = `<div class='calendar-day ${hasEvents || hasReferenceEvents ? 'has-events' : ''} bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
+    let html = `<div class='calendar-day ${hasEvents ? 'has-events' : ''} bg-white border p-2 rounded relative' data-date='${dateStr}'>`;
     // 新版：同一列，禮拜幾靠右，日期農曆靠左
     html += `<div class='flex flex-row items-center justify-between mb-1'>`;
     html += `<div class='flex flex-row items-center'>`;
@@ -539,16 +339,7 @@ function renderCalendar() {
         <span class='event-organizer-tooltip' style='display:none;position:absolute;left:0;right:0;bottom:-1.8em;background:rgba(0,0,0,0.8);color:#fff;font-size:12px;padding:2px 6px;border-radius:4px;z-index:10;text-align:center;'>${ev.organizer||''}</span>
       </div>`;
     }
-    referenceDayEvents.forEach(ref => {
-      const refTitle = escapeHtml(ref.title);
-      const refTime = escapeHtml(ref.timeText);
-      html += `<div class='event reference-event'
-        title='${refTitle}\n${refTime}'>
-        <span class='event-title-row'><span style='font-weight:bold;'>${refTitle}</span><span class='host-type-badge'>參考</span></span>
-        <span class='event-mobile-meta'>${refTime}</span>
-      </div>`;
-    });
-    if (!hasEvents && !hasReferenceEvents) {
+    if (!hasEvents) {
       html += `<div class="calendar-empty-state">尚無借用</div>`;
     }
     html += '</div></div>';
@@ -566,12 +357,12 @@ function renderCalendar() {
   });
   // 允許點擊日曆空白區塊直接新增活動（已實作，強化 UX 提示）
   $('.calendar-day[data-date]').off('click').on('click',function(e){
-    if($(e.target).closest('.event').length) return;
+    if($(e.target).hasClass('event')) return;
     const date = $(this).data('date');
     if (!date) return;
     openEventModal(date);
   });
-  $('.event[data-event-id]').off('click').on('click',function(e){
+  $('.event').off('click').on('click',function(e){
     e.stopPropagation();
     const date = $(this).closest('.calendar-day').data('date');
     viewEvent($(this).data('event-id'), date);
@@ -579,9 +370,6 @@ function renderCalendar() {
     $(this).find('.event-organizer-tooltip').show();
   }).on('mouseleave',function(){
     $(this).find('.event-organizer-tooltip').hide();
-  });
-  $('.reference-event').off('click').on('click',function(e){
-    e.stopPropagation();
   });
   renderTodayOverview();
   window.requestAnimationFrame(() => {

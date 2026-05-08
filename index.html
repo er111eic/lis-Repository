@@ -71,20 +71,17 @@
                 <section id="referenceCalendarPanel" class="reference-calendar-panel hidden mb-6" aria-label="Google 參考日曆">
                   <div class="reference-calendar-header">
                     <div>
-                      <p class="reference-calendar-kicker">iCal</p>
-                      <h3>參考活動</h3>
+                      <p class="reference-calendar-kicker">Google Calendar</p>
+                      <h3>參考日曆</h3>
                     </div>
                     <button id="hideReferenceCalendar" class="btn-secondary btn-icon reference-calendar-close" type="button"><span class="icon">×</span>隱藏</button>
                   </div>
-                  <div class="reference-calendar-settings">
-                    <input id="referenceCalendarUrl" class="reference-calendar-input" type="url" placeholder="貼上 iCal URL">
-                    <button id="loadReferenceCalendar" class="btn-primary btn-icon reference-calendar-load" type="button"><span class="icon">↻</span>載入</button>
-                    <label class="reference-calendar-proxy">
-                      <input id="referenceCalendarProxyAllowed" type="checkbox">
-                      <span>公開代理</span>
-                    </label>
-                  </div>
-                  <div id="referenceCalendarStatus" class="reference-calendar-status"></div>
+                  <iframe
+                    id="referenceCalendarFrame"
+                    title="Google 參考日曆"
+                    src="https://calendar.google.com/calendar/embed?src=083f86qgr43fgql2tg4e9k7o78%40group.calendar.google.com&ctz=Asia%2FTaipei"
+                    loading="lazy">
+                  </iframe>
                 </section>
 
                 <section id="todayOverview" class="today-overview mb-6" aria-live="polite"></section>
