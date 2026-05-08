@@ -63,30 +63,9 @@
                         <button id="nextMonth" class="btn-primary btn-icon" aria-label="下一個月"><span class="icon">&#8594;</span></button>
                     </div>
                     <div class="toolbar-actions">
-                      <button id="toggleReferenceCalendar" class="btn-secondary btn-icon reference-calendar-toggle" type="button" aria-expanded="false" aria-controls="referenceCalendarPanel"><span class="icon">◎</span>參考日曆</button>
                       <button id="quickAddEvent" class="btn-primary btn-icon quick-add-btn" type="button"><span class="icon">＋</span>新增借用</button>
                     </div>
                 </div>
-
-                <section id="referenceCalendarPanel" class="reference-calendar-panel hidden mb-6" aria-label="Google 參考日曆">
-                  <div class="reference-calendar-header">
-                    <div>
-                      <p class="reference-calendar-kicker">Google Calendar</p>
-                      <h3>參考日曆</h3>
-                    </div>
-                    <button id="hideReferenceCalendar" class="btn-secondary btn-icon reference-calendar-close" type="button"><span class="icon">×</span>隱藏</button>
-                  </div>
-                  <div class="reference-calendar-body">
-                    <div class="reference-calendar-copy">
-                      <p class="reference-calendar-status-label">狀態</p>
-                      <p id="referenceCalendarStatus" class="reference-calendar-status">尚未授權，參考活動不會顯示在日曆上。</p>
-                    </div>
-                    <div class="reference-calendar-actions">
-                      <button id="authorizeReferenceCalendar" class="btn-primary btn-icon" type="button"><span class="icon">◎</span>授權讀取</button>
-                      <button id="reloadReferenceCalendar" class="btn-secondary btn-icon" type="button" disabled><span class="icon">↻</span>重新載入</button>
-                    </div>
-                  </div>
-                </section>
 
                 <section id="todayOverview" class="today-overview mb-6" aria-live="polite"></section>
 
@@ -250,21 +229,9 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
-    const calendarProvider = new GoogleAuthProvider();
-    calendarProvider.addScope('https://www.googleapis.com/auth/calendar.readonly');
 
     window.db = db;
     window.firestoreFns = { collection, getDocs, doc, setDoc, addDoc, deleteDoc };
-    window.requestGoogleCalendarAccess = async () => {
-      const result = await signInWithPopup(auth, calendarProvider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential && credential.accessToken;
-      if (!token) {
-        throw new Error('沒有取得 Google Calendar 授權');
-      }
-      showUser(result.user);
-      return token;
-    };
 
     // 顯示登入狀態
     const userInfoDiv = document.getElementById('userInfo');
