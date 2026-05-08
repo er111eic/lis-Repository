@@ -53,6 +53,7 @@ let selectedVenue = null;
 let currentEventDate = null;
 let formValidationVisible = false;
 let lockedScrollY = 0;
+const referenceCalendarStorageKey = 'xdsdReferenceCalendarVisible';
 const venues = [
   "晑德-佛堂",
   "晑德-廚房",
@@ -109,6 +110,27 @@ function renderTodayOverview() {
   $('#todayAddEvent').off('click').on('click', () => openEventModal(todayStr));
   $('.today-event-item').off('click').on('click', function() {
     viewEvent($(this).data('event-id'), $(this).data('date'));
+  });
+}
+
+function setReferenceCalendarVisible(visible) {
+  const $panel = $('#referenceCalendarPanel');
+  const $toggle = $('#toggleReferenceCalendar');
+  $panel.toggleClass('hidden', !visible);
+  $toggle.attr('aria-expanded', String(visible));
+  $toggle.toggleClass('is-active', visible);
+  $toggle.html(visible ? '<span class="icon">◎</span>隱藏參考' : '<span class="icon">◎</span>參考日曆');
+  localStorage.setItem(referenceCalendarStorageKey, visible ? '1' : '0');
+}
+
+function initReferenceCalendarToggle() {
+  const savedVisible = localStorage.getItem(referenceCalendarStorageKey) === '1';
+  setReferenceCalendarVisible(savedVisible);
+  $('#toggleReferenceCalendar').off('click').on('click', function() {
+    setReferenceCalendarVisible($('#referenceCalendarPanel').hasClass('hidden'));
+  });
+  $('#hideReferenceCalendar').off('click').on('click', function() {
+    setReferenceCalendarVisible(false);
   });
 }
 
@@ -409,6 +431,7 @@ $(function() {
   loadEvents().then(() => {
     updateMonthYearDisplay();
     renderCalendar();
+    initReferenceCalendarToggle();
   });
   // 上下月按鈕改為箭頭
   $('#prevMonth').html('<span class="icon">&#8592;</span>');
