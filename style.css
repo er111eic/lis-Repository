@@ -2044,12 +2044,65 @@ main .container {
   min-height: 36px;
 }
 
-#referenceCalendarFrame {
-  background: #fff;
-  border: 0;
-  display: block;
-  height: min(68vh, 620px);
+.reference-calendar-settings {
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding: 0.9rem 1rem;
+}
+
+.reference-calendar-input {
   width: 100%;
+}
+
+.reference-calendar-load {
+  min-width: 5.5rem;
+}
+
+.reference-calendar-proxy {
+  align-items: center;
+  color: var(--muted) !important;
+  display: inline-flex;
+  font-size: 0.84rem;
+  font-weight: 700;
+  gap: 0.42rem;
+  white-space: nowrap;
+}
+
+.reference-calendar-proxy input {
+  accent-color: #5856d6;
+  height: 18px;
+  width: 18px;
+}
+
+.reference-calendar-status {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+  min-height: 1.4rem;
+  padding: 0 1rem 0.9rem;
+}
+
+.reference-calendar-status.is-error {
+  color: #b42318;
+}
+
+.reference-calendar-status.is-success {
+  color: #5856d6;
+}
+
+.event.reference-event {
+  background: rgba(88, 86, 214, 0.1) !important;
+  border: 1px solid rgba(88, 86, 214, 0.18) !important;
+  border-left: 3px solid #5856d6 !important;
+  color: var(--ink);
+  cursor: default;
+}
+
+.reference-event .host-type-badge {
+  background: rgba(88, 86, 214, 0.14);
+  color: #5856d6;
 }
 
 .today-overview {
@@ -2349,8 +2402,18 @@ textarea:focus {
     padding: 0.8rem;
   }
 
-  #referenceCalendarFrame {
-    height: min(62vh, 520px);
+  .reference-calendar-settings {
+    grid-template-columns: 1fr;
+    padding: 0.8rem;
+  }
+
+  .reference-calendar-load,
+  .reference-calendar-proxy {
+    width: 100%;
+  }
+
+  .reference-calendar-load {
+    justify-content: center;
   }
 
   .calendar-day-empty {
