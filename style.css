@@ -1644,13 +1644,6 @@ textarea:focus {
     font-size: 1.05rem;
   }
 
-  #todayAddEvent {
-    flex: 0 0 auto;
-    min-width: 0;
-    padding-left: 0.85rem;
-    padding-right: 0.85rem;
-  }
-
   .calendar-day {
     display: grid;
     gap: 0.45rem;
@@ -2001,115 +1994,6 @@ main .container {
   margin-left: auto;
 }
 
-.reference-calendar-toggle.is-active {
-  background: rgba(88, 86, 214, 0.1);
-  color: #5856d6;
-}
-
-.reference-calendar-panel {
-  animation: app-fade-up var(--motion-base) var(--motion-ease) both;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  overflow: hidden;
-}
-
-.reference-calendar-header {
-  align-items: center;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  padding: 0.85rem 1rem;
-}
-
-.reference-calendar-kicker {
-  color: var(--muted);
-  font-size: 0.76rem;
-  font-weight: 700;
-  line-height: 1;
-  margin: 0 0 0.24rem;
-}
-
-.reference-calendar-header h3 {
-  color: var(--ink);
-  font-size: 1rem;
-  font-weight: 760;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.reference-calendar-close {
-  flex: 0 0 auto;
-  min-height: 36px;
-}
-
-.reference-calendar-body {
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  padding: 1rem;
-}
-
-.reference-calendar-copy {
-  min-width: 0;
-}
-
-.reference-calendar-status-label {
-  color: var(--muted);
-  font-size: 0.76rem;
-  font-weight: 700;
-  line-height: 1;
-  margin: 0 0 0.34rem;
-}
-
-.reference-calendar-status {
-  color: var(--ink);
-  font-size: 0.92rem;
-  font-weight: 650;
-  line-height: 1.45;
-  margin: 0;
-}
-
-.reference-calendar-status.is-loading {
-  color: #5856d6;
-}
-
-.reference-calendar-status.is-ready {
-  color: #1f7a4d;
-}
-
-.reference-calendar-status.is-error {
-  color: #c62828;
-}
-
-.reference-calendar-actions {
-  display: flex;
-  flex: 0 0 auto;
-  gap: 0.55rem;
-}
-
-.reference-event {
-  background: rgba(88, 86, 214, 0.08) !important;
-  border: 0 !important;
-  border-left: 3px solid #5856d6 !important;
-  color: var(--ink);
-  cursor: default !important;
-}
-
-.reference-event-badge {
-  align-items: center;
-  background: rgba(88, 86, 214, 0.12);
-  border-radius: 999px;
-  color: #5856d6;
-  display: inline-flex;
-  font-size: 0.68rem;
-  font-weight: 760;
-  line-height: 1;
-  padding: 0.18rem 0.38rem;
-}
-
 .today-overview {
   padding: 1rem;
 }
@@ -2392,7 +2276,7 @@ textarea:focus {
   .toolbar-actions {
     display: grid;
     gap: 0.6rem;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     margin-left: 0;
     width: 100%;
   }
@@ -2400,21 +2284,6 @@ textarea:focus {
   .toolbar-actions .btn-primary,
   .toolbar-actions .btn-secondary {
     min-width: 0;
-    width: 100%;
-  }
-
-  .reference-calendar-header {
-    padding: 0.8rem;
-  }
-
-  .reference-calendar-body,
-  .reference-calendar-actions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .reference-calendar-actions .btn-primary,
-  .reference-calendar-actions .btn-secondary {
     width: 100%;
   }
 
@@ -2867,9 +2736,4 @@ textarea:focus {
   #saveEvent {
     min-width: 0;
   }
-}
-
-.calendar-day .reference-event {
-  background: rgba(88, 86, 214, 0.08) !important;
-  border-left-color: #5856d6 !important;
 }
