@@ -76,12 +76,16 @@
                     </div>
                     <button id="hideReferenceCalendar" class="btn-secondary btn-icon reference-calendar-close" type="button"><span class="icon">×</span>隱藏</button>
                   </div>
-                  <iframe
-                    id="referenceCalendarFrame"
-                    title="Google 參考日曆"
-                    src="https://calendar.google.com/calendar/embed?src=083f86qgr43fgql2tg4e9k7o78%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                    loading="lazy">
-                  </iframe>
+                  <div class="reference-calendar-body">
+                    <div class="reference-calendar-copy">
+                      <p class="reference-calendar-status-label">狀態</p>
+                      <p id="referenceCalendarStatus" class="reference-calendar-status">尚未授權，參考活動不會顯示在日曆上。</p>
+                    </div>
+                    <div class="reference-calendar-actions">
+                      <button id="authorizeReferenceCalendar" class="btn-primary btn-icon" type="button"><span class="icon">◎</span>授權讀取</button>
+                      <button id="reloadReferenceCalendar" class="btn-secondary btn-icon" type="button" disabled><span class="icon">↻</span>重新載入</button>
+                    </div>
+                  </div>
                 </section>
 
                 <section id="todayOverview" class="today-overview mb-6" aria-live="polite"></section>
@@ -246,9 +250,21 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+    const calendarProvider = new GoogleAuthProvider();
+    calendarProvider.addScope('https://www.googleapis.com/auth/calendar.readonly');
 
     window.db = db;
     window.firestoreFns = { collection, getDocs, doc, setDoc, addDoc, deleteDoc };
+    window.requestGoogleCalendarAccess = async () => {
+      const result = await signInWithPopup(auth, calendarProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential && credential.accessToken;
+      if (!token) {
+        throw new Error('沒有取得 Google Calendar 授權');
+      }
+      showUser(result.user);
+      return token;
+    };
 
     // 顯示登入狀態
     const userInfoDiv = document.getElementById('userInfo');
