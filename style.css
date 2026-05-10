@@ -2732,8 +2732,228 @@ textarea:focus {
     justify-content: center !important;
   }
 
-  #cancelEvent,
-  #saveEvent {
-    min-width: 0;
+#cancelEvent,
+#saveEvent {
+  min-width: 0;
+}
+}
+
+/* Interface refinement: wider desktop workspace, compact auth, calmer sheets. */
+@media (min-width: 1024px) {
+  .app-header,
+  main .container {
+    max-width: 1280px !important;
+  }
+}
+
+.app-titlebar {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.auth-slot {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  min-height: 36px;
+  padding-top: 0.15rem;
+}
+
+#googleSignInBtn,
+#userInfo {
+  backdrop-filter: none !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  max-width: 16rem;
+  min-height: 34px;
+  position: static !important;
+  right: auto !important;
+  top: auto !important;
+  z-index: auto !important;
+}
+
+#userInfo {
+  background: var(--paper) !important;
+  color: var(--muted) !important;
+  display: inline-flex;
+  font-size: 0.82rem !important;
+  font-weight: 700;
+  overflow: hidden;
+  padding: 0.42rem 0.64rem !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#userInfo.hidden {
+  display: none;
+}
+
+#googleSignInBtn {
+  padding: 0.42rem 0.7rem !important;
+}
+
+.app-note {
+  padding: 0 !important;
+}
+
+.app-note summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.85rem 1rem;
+}
+
+.app-note summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-note summary::after {
+  color: var(--muted);
+  content: "+";
+  font-weight: 760;
+  margin-left: auto;
+}
+
+.app-note[open] summary::after {
+  content: "-";
+}
+
+.usage-note-body {
+  border-top: 1px solid var(--line);
+  padding: 0 1rem 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .calendar-day .event {
+    min-height: 40px;
+  }
+
+  .calendar-day .event-title-row > span:first-child {
+    display: -webkit-box;
+    line-height: 1.28;
+    overflow: hidden;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}
+
+#eventModal,
+#viewEventModal,
+#importModal {
+  background: rgba(0, 0, 0, 0.36) !important;
+  backdrop-filter: none !important;
+}
+
+#eventModal form,
+#viewEventModal > div,
+#importModal > div {
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.sheet-header {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin: -0.15rem -0.15rem 1rem;
+  padding: 0 0.15rem 0.85rem;
+}
+
+#eventModalTitle,
+.view-event-title {
+  border-bottom: 0 !important;
+  font-size: 1.45rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.sheet-close {
+  align-items: center;
+  background: var(--system-fill);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--muted);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 1.2rem;
+  font-weight: 650;
+  height: 34px;
+  justify-content: center;
+  line-height: 1;
+  width: 34px;
+}
+
+.sheet-close:hover {
+  background: rgba(120, 120, 128, 0.18);
+  color: var(--ink);
+}
+
+.view-event-sheet {
+  max-width: 560px !important;
+}
+
+.detail-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.detail-row {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  padding: 0.55rem 0;
+}
+
+.detail-row:last-child {
+  border-bottom: 0;
+}
+
+.detail-label {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.detail-value {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.45;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .app-titlebar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .auth-slot {
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+
+  #googleSignInBtn,
+  #userInfo {
+    max-width: 100%;
+  }
+
+  .sheet-header {
+    margin-bottom: 0.85rem;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
 }

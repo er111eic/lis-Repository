@@ -66,6 +66,16 @@ function formatDateStr(date) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
 
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
 function getEventSummary(ev) {
   const time = ev.startTime && ev.endTime ? `${ev.startTime}-${ev.endTime}` : '未設定時間';
   const venuesText = Array.isArray(ev.venues) && ev.venues.length ? ev.venues.join('、') : '未設定空間';
@@ -441,6 +451,7 @@ $(function() {
     e.preventDefault();
     closeEventModal();
   });
+  $('#closeEventSheet').off('click').on('click', closeEventModal);
   $('#saveEvent').off('click').on('click', function(e) {
     e.preventDefault();
     formValidationVisible = true;
@@ -448,6 +459,7 @@ $(function() {
     saveEvent();
   });
   $('#closeViewEvent').off('click').on('click', closeViewEventModal);
+  $('#closeViewEventSheet').off('click').on('click', closeViewEventModal);
   $('#editEvent').off('click').on('click', editEvent);
   $('#deleteEvent').off('click').on('click', deleteEvent);
   // 讓點擊活動詳情視窗以外區域可關閉
@@ -645,9 +657,14 @@ function viewEvent(eventId, dateStr) {
     { label: '負責人', value: ev.organizer || '' },
     { label: '電話', value: ev.organizerPhone || '未填寫' }
   ];
-  let html = '<div class="flex flex-col gap-2">';
+  let html = '<div class="detail-list">';
   detailRows.forEach(row => {
-    html += `<div class="flex flex-row items-center mb-1"><span class="font-semibold w-24 text-gray-700">${row.label}：</span><span class="flex-1 p-1 bg-gray-50 rounded">${row.value}</span></div>`;
+    html += `
+      <div class="detail-row">
+        <span class="detail-label">${escapeHtml(row.label)}</span>
+        <span class="detail-value">${escapeHtml(row.value)}</span>
+      </div>
+    `;
   });
   html += '</div>';
   $('#viewEventModal .event-detail-content').html(html);
