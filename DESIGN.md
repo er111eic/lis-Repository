@@ -57,6 +57,14 @@ Do not use negative letter spacing in this app. It is a tool surface, not an App
 
 Keep nested cards rare. Prefer grouped-list surfaces and hairline separation.
 
+## Liquid Glass
+
+Liquid Glass is limited to the functional control layer: account chip, sign-in button, month navigation, primary action buttons, sheet close control, sticky sheet actions, and toast.
+
+Do not apply Liquid Glass to the content layer. Calendar cells, event cards, form groups, today's overview, and detail content should remain nearly opaque so dates, venue names, host colors, and validation states stay readable.
+
+Use a dim overlay behind sheets, not heavy blur. Respect reduced transparency by falling back to solid controls.
+
 ## Motion
 
 - Fast interaction: 120ms
